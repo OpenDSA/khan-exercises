@@ -3544,33 +3544,33 @@ a.control:hover { color: #DD6900; }
 
 @font-face {
     font-family: 'Proxima Nova';
-    src: url('/fonts/ProximaNova-Reg-webfont.eot');
-    src: url('/fonts/ProximaNova-Reg-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/fonts/ProximaNova-Reg-webfont.woff') format('woff'),
-         url('/fonts/ProximaNova-Reg-webfont.ttf') format('truetype'),
-         url('/fonts/ProximaNova-Reg-webfont.svg#proxima_nova_rgregular') format('svg');
+    src: url('/khan-exercises/fonts/ProximaNova-Regular-webfont.eot');
+    src: url('/khan-exercises/fonts/ProximaNova-Regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/khan-exercises/fonts/ProximaNova-Regular-webfont.woff') format('woff'),
+         url('/khan-exercises/fonts/ProximaNova-Regular-webfont.ttf') format('truetype'),
+         url('/khan-exercises/fonts/ProximaNova-Regular-webfont.svg#proxima_nova_rgregular') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Proxima Nova';
-    src: url('/fonts/ProximaNova-Bold-webfont.eot');
-    src: url('/fonts/ProximaNova-Bold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/fonts/ProximaNova-Bold-webfont.woff') format('woff'),
-         url('/fonts/ProximaNova-Bold-webfont.ttf') format('truetype'),
-         url('/fonts/ProximaNova-Bold-webfont.svg#proxima_nova_rgbold') format('svg');
+    src: url('/khan-exercises/fonts/ProximaNova-Bold-webfont.eot');
+    src: url('/khan-exercises/fonts/ProximaNova-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/khan-exercises/fonts/ProximaNova-Bold-webfont.woff') format('woff'),
+         url('/khan-exercises/fonts/ProximaNova-Bold-webfont.ttf') format('truetype'),
+         url('/khan-exercises/fonts/ProximaNova-Bold-webfont.svg#proxima_nova_rgbold') format('svg');
     font-weight: bold;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Proxima Nova Bold';
-    src: url('/fonts/ProximaNova-Bold-webfont.eot');
-    src: url('/fonts/ProximaNova-Bold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/fonts/ProximaNova-Bold-webfont.woff') format('woff'),
-         url('/fonts/ProximaNova-Bold-webfont.ttf') format('truetype'),
-         url('/fonts/ProximaNova-Bold-webfont.svg#proxima_nova_rgbold') format('svg');
+    src: url('/khan-exercises/fonts/ProximaNova-Bold-webfont.eot');
+    src: url('/khan-exercises/fonts/ProximaNova-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/khan-exercises/fonts/ProximaNova-Bold-webfont.woff') format('woff'),
+         url('/khan-exercises/fonts/ProximaNova-Bold-webfont.ttf') format('truetype'),
+         url('/khan-exercises/fonts/ProximaNova-Bold-webfont.svg#proxima_nova_rgbold') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -6071,8 +6071,8 @@ a.big-button:active > div {
  * -------------------------- */
 @font-face {
   font-family: 'FontAwesome';
-  src: url('/fonts/fontawesome-webfont.eot?v=3.6.0');
-  src: url('/fonts/fontawesome-webfont.eot?#iefix&v=3.6.0') format('embedded-opentype'), url('/fonts/fontawesome-webfont.woff?v=3.6.0') format('woff'), url('/fonts/fontawesome-webfont.ttf?v=3.6.0') format('truetype'), url('/fonts/fontawesome-webfont.svg#fontawesomeregular?v=3.6.0') format('svg');
+  src: url('/khan-exercises/fonts/fontawesome-webfont.eot?v=3.6.0');
+  src: url('/khan-exercises/fonts/fontawesome-webfont.eot?#iefix&v=3.6.0') format('embedded-opentype'), url('/khan-exercises/fonts/fontawesome-webfont.woff?v=3.6.0') format('woff'), url('/khan-exercises/fonts/fontawesome-webfont.ttf?v=3.6.0') format('truetype'), url('/khan-exercises/fonts/fontawesome-webfont.svg#fontawesomeregular?v=3.6.0') format('svg');
   font-weight: normal;
   font-style: normal;
 }

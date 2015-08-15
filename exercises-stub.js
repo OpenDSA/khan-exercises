@@ -6,14 +6,14 @@ window.Exercises = {
 
     useKatex: true,
 
-    khanExercisesUrlBase: "../",
+    khanExercisesUrlBase: "../../khan-exercises/",
 
-    getCurrentFramework: function() {
+    getCurrentFramework: function () {
         return "khan-exercises";
     },
 
     PerseusBridge: {
-        cleanupProblem: function() {
+        cleanupProblem: function () {
             return false;
         }
     }

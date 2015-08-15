@@ -1,17 +1,17 @@
 requirejs.config({
     paths: {
-        "jquery": "../local-only/jquery",
+        "jquery": "/khan-exercises/local-only/jquery",
     }
 });
 
 requirejs([
     "jquery",
-    "../local-only/katex/katex.js",
-    "../local-only/underscore.js",
-    "../local-only/jed.js",
-    "../local-only/localeplanet/icu." + getLang() + ".js",
-    "../local-only/moment.js"
-], function($, katex) {
+    "/khan-exercises/local-only/katex/katex.js",
+    "/khan-exercises/local-only/underscore.js",
+    "/khan-exercises/local-only/jed.js",
+    "/khan-exercises/local-only/localeplanet/icu." + getLang() + ".js",
+    "/khan-exercises/local-only/moment.js"
+], function ($, katex) {
     // Only 'jquery' and 'katex' have amd wrappers (and jQuery sets the global
     // regardless); the other files export globally directly and we don't use
     // their return values
@@ -19,18 +19,18 @@ requirejs([
 
     // These scripts depend on jQuery or underscore, so we wait to load them
     requirejs([
-        "../exercises-stub.js",
-        "../local-only/jquery-migrate-1.1.1.js",
-        "../local-only/jquery-ui.js",
-        "../local-only/jquery.qtip.js",
-        "../local-only/kas.js",
-        "../local-only/i18n.js"
-    ], function() {
+        "/khan-exercises/exercises-stub.js",
+        "/khan-exercises/local-only/jquery-migrate-1.1.1.js",
+        "/khan-exercises/local-only/jquery-ui.js",
+        "/khan-exercises/local-only/jquery.qtip.js",
+        "/khan-exercises/local-only/kas.js",
+        "/khan-exercises/local-only/i18n.js"
+    ], function () {
         requirejs([
-            "../history.js",
-            "../interface.js",
-        ], function() {
-            requirejs(["../khan-exercise.js"], function() {
+            "/khan-exercises/history.js",
+            "/khan-exercises/interface.js",
+        ], function () {
+            requirejs(["/khan-exercises/khan-exercise.js"], function () {
                 Khan.loadLocalModeSiteWhenReady();
             });
         });
