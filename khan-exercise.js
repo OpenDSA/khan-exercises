@@ -141,6 +141,7 @@ define(function (require) {
     // site, immediately)
     modulePromises = {},
     initialModulesPromise = $.Deferred(),
+    // OpenDSAExercisesPromise = $.Deferred(),
 
     urlBase = localMode ? "/khan-exercises/" :
     Exercises.khanExercisesUrlBase != null ?
@@ -290,6 +291,36 @@ define(function (require) {
       }
     },
 
+    loadOpenDSAExercises: function () {
+
+      $(function () {
+        var promises = [];
+
+        // Ensure that all local exercises get tagged with the exercise ID
+        // $("div.exercise").data("name", currentExerciseId);
+
+        // Ensure that all local exercises that don't have a data-name
+        // already get tagged with the current, original data-name.
+        // $("div.exercise").not("[data-name]").data("name", currentExerciseId);
+
+        // TODO: if OpenDSA Summ exercises
+        var remoteExercises = $("div.exercise[data-name]");
+
+        remoteExercises.each(function () {
+          promises.push(loadExercise(this));
+        });
+        // All remote exercises (if any) have now been loaded
+        $.when.apply($, promises).then(function () {
+          // All modules have now been loaded
+          // initialModulesPromise.resolve();
+          Khan.exercises = exercises;
+          loadLocalModeSiteWhenReady();
+        });
+      });
+
+      // OpenDSAExercisesPromise.then(function () {
+      // });
+    },
     loadLocalModeSiteWhenReady: function () {
       initialModulesPromise.then(function () {
         loadLocalModeSite();
@@ -882,21 +913,19 @@ define(function (require) {
       promises.push(Khan.mathJaxLoaded);
 
       // Ensure that all local exercises get tagged with the exercise ID
-      // $("div.exercise").data("name", currentExerciseId);
+      $("div.exercise").data("name", currentExerciseId);
 
-      // Ensure that all local exercises that don't have a data-name
-      // already get tagged with the current, original data-name.
-      $("div.exercise").not("[data-name]").data("name", currentExerciseId);
+      // // Ensure that all local exercises that don't have a data-name
+      // // already get tagged with the current, original data-name.
+      // $("div.exercise").not("[data-name]").data("name", currentExerciseId);
 
-      var remoteExercises = $("div.exercise[data-name]");
+      // var remoteExercises = $("div.exercise[data-name]");
 
-      remoteExercises.each(function () {
-        promises.push(loadExercise(this));
-      });
+      // remoteExercises.each(function () {
+      //   promises.push(loadExercise(this));
+      // });
 
       // All remote exercises (if any) have now been loaded
-
-
       $.when.apply($, promises).then(function () {
         // All modules have now been loaded
         initialModulesPromise.resolve();
