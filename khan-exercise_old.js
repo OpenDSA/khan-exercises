@@ -58,10 +58,6 @@
       shown in response, e.g. "We don't understand your answer."
 */
 define(function(require) {
-    // Modified by Hosam Shahin
-    // OpenDSA Exercises path
-    var exerciesPath = window.location.pathname;
-    exerciesPath = exerciesPath.substring(0, exerciesPath.lastIndexOf("/") + 1);
 
     var crc32 = require("./utils/crc32.js");
 
@@ -146,7 +142,7 @@ define(function(require) {
         modulePromises = {},
         initialModulesPromise = $.Deferred(),
 
-        urlBase = localMode ? "/khan-exercises/" :
+        urlBase = localMode ? "../" :
         Exercises.khanExercisesUrlBase != null ?
         Exercises.khanExercisesUrlBase :
         "/khan-exercises/",
@@ -886,23 +882,10 @@ define(function(require) {
             promises.push(Khan.mathJaxLoaded);
 
             // Ensure that all local exercises get tagged with the exercise ID
-            // $("div.exercise").data("name", currentExerciseId);
+            $("div.exercise").data("name", currentExerciseId);
 
-            // Ensure that all local exercises that don't have a data-name
-            // already get tagged with the current, original data-name.
-            $("div.exercise").not("[data-name]").data("name", currentExerciseId);
-
-            // var remoteExercises = $("div.exercise[data-name]");
-
-            // remoteExercises.each(function() {
-            //     var exerciseId = $(this).data("name");
-            //     var fileName = exerciseId + ".html";
-            //     promises.push(loadExercise(exerciseId, fileName));
-            // });
-            // All remote exercises (if any) have now been loaded
             $.when.apply($, promises).then(function() {
                 // All modules have now been loaded
-                Khan.exercises = exercises;
                 initialModulesPromise.resolve();
             });
         });
@@ -941,13 +924,9 @@ define(function(require) {
             seedOverride = userExercise.seed;
 
         var exerciseId = userExercise.exerciseModel.name,
-            exerciseFile = userExercise.exerciseModel.fileName,
-            rootName = userExercise.exerciseModel.rootName;
+            exerciseFile = userExercise.exerciseModel.fileName;
 
         function finishRender() {
-            var problems = exercises.filter(function() {
-                return $.data(this, "rootName") === exerciseId;
-            }).children(".problems").children();
             // Make scratchpad persistent per-user
             if (user && window.LocalStore) {
                 var lastScratchpad = LocalStore.get("scratchpad:" + user);
@@ -1028,409 +1007,409 @@ define(function(require) {
             $.trim(guess.join("").replace(/,/g, "")) === "");
     }
 
-    function makeProblem(exerciseId, typeOverride, seedOverride) {
-        debugLog("makeProblem(" + exerciseId + ", " + typeOverride + ", " + seedOverride + ")");
-
-        Khan.scratchpad.enable();
-
-        // Allow passing in an arbitrary seed
-        if (typeof seedOverride !== "undefined") {
-            currentProblemSeed = seedOverride;
-
-            // If no user, just pick a random seed
-        } else if (user == null) {
-            currentProblemSeed = Math.abs(randomSeed % bins);
-        }
-        debugLog("  using seed " + currentProblemSeed + " for " + exerciseId);
-
-        // Set randomSeed to what currentProblemSeed is (save currentProblemSeed for recall later)
-        randomSeed = currentProblemSeed;
-
-        // Check to see if we want to test a specific problem
-        if (localMode) {
-            typeOverride = typeof typeOverride !== "undefined" ? typeOverride : Khan.query.problem;
-        }
-
-        // problems contains the unprocessed contents of each problem type within exerciseId
-        var problems = exercises.filter(function() {
-            return $.data(this, "name") === exerciseId;
-        }).children(".problems").children();
-
-        if (!problems.length) {
-            Khan.error("No problem matching exerciseId " + exerciseId);
-        }
-
-        if (typeof typeOverride !== "undefined") {
-            problem = /^\d+$/.test(typeOverride) ?
-                // Access a problem by number
-                problems.eq(parseFloat(typeOverride)) :
-
-                // Or by its ID
-                problems.filter("#" + typeOverride);
-
-            currentProblemType = typeOverride;
-
-            // Otherwise create a random problem from weights
-        } else {
-            var typeIndex = [];
-            $.each(problems, function(index) {
-                if ($(this).data("weight") === 0) {
-                    return;
-                }
-                var weight = $(this).data("weight") || 1;
-                _.times(weight, function() {
-                    typeIndex.push(index);
-                });
-            });
-            var typeNum = typeIndex[Math.floor(KhanUtil.random() * typeIndex.length)];
-            problem = problems.eq(typeNum);
-            currentProblemType = $(problem).attr("id") || "" + typeNum;
-        }
-
-        // TODO(brianmerlob): If we still don't have a problem then it's time to fail as gracefully
-        // as we can. This probably occurs during mastery challenges when some sort of race
-        // condition causes the type for one problem to sneak it's way in for another problem
-        // and then `problem = problems.eq(type)` returns an empty object (thus length === 0).
-        // This should _never_ happen, and hopefully these autoSubmitIssues will help debug.
-        if (!problem.length && problems.length) {
-            Khan.autoSubmitIssue("type was for the incorrect problem; failed gracefully");
-            problem = problems.eq(Math.floor(KhanUtil.random() * problems.length));
-        }
-
-        // Find which exercise this problem is from
-        exercise = problem.parents("div.exercise").eq(0);
-
-        debugLog("  chose problem type [" + currentProblemType + "] and seed [" + currentProblemSeed + "] for " + exerciseId);
-
-        // Work with a clone to avoid modifying the original
-        problem = problem.clone();
-
-        debugLog("cloned problem");
-
-        $("#workarea").append(problem);
-
-        // If there's an original problem, add inherited elements
-        var parentType = problem.data("type");
-
-        // We want to wait until problem is "fully formed" before
-        // attempting to move #solutionarea
-        while (parentType) {
-            // Copy over the parent element to the child
-            var original = exercise.find(".problems #" + parentType).clone();
-            problem.prepend(original.children().data("inherited", true));
-
-            // Keep copying over the parent elements (allowing for deep inheritance)
-            parentType = original.data("type");
-        }
-
-        // Add any global exercise defined elements
-        problem.prepend(exercise.children(":not(.problems)").clone().data("inherited", true));
-
-        debugLog("cloned global elements");
-
-        // Apply templating
-        var children = problem
-            // var blocks append their contents to the parent
-            .find(".vars").tmplApply({
-                attribute: "class",
-                defaultApply: "appendVars"
-            }).end()
-
-        // Individual variables override other variables with the same name
-        .find(".vars [id]").tmplApply().end()
-
-        // We also look at the main blocks within the problem itself to override,
-        // ignoring graphie and spin blocks
-        .children("[class][class!='graphie'][class!='spin']").tmplApply({
-            attribute: "class"
-        });
-
-        debugLog("ran tmplApply to vars and main elements");
-
-        // Finally we do any inheritance to the individual child blocks (such as problem, question, etc.)
-        children.each(function() {
-            // Apply while adding problem.children() to include
-            // template definitions within problem scope
-            $(this).find("[id]").add(children).tmplApply();
-        });
-
-        debugLog("ran tmplApply to [id]");
-
-        // Remove and store hints to delay running modules on it
-        hints = problem.children(".hints").remove();
-
-        // Only show the calculator if it's specifically allowed for this problem
-        if (problem.data("calculator") == null) {
-            $("#calculator").hide();
-        } else {
-            $("#calculator").show();
-        }
-
-        debugLog("removed hints from DOM");
-
-        // Evaluate any inline script tags in this exercise's source
-        $.each(exercise.data("script") || [], function(i, scriptContents) {
-            $.globalEval(scriptContents);
-        });
-
-        debugLog("evaled inline scripts");
-
-        // ...and inline style tags.
-        if (exercise.data("style")) {
-            var exerciseStyleElem = $("#exercise-inline-style");
-
-            // Clear old exercise style definitions
-            if (exerciseStyleElem.length && exerciseStyleElem[0].styleSheet) {
-                // IE refuses to modify the contents of <style> the normal way
-                exerciseStyleElem[0].styleSheet.cssText = "";
-            } else {
-                exerciseStyleElem.empty();
-            }
-
-            // Then add rules specific to this exercise.
-            $.each(exercise.data("style"), function(i, styleContents) {
-                if (exerciseStyleElem.length && exerciseStyleElem[0].styleSheet) {
-                    // IE refuses to modify the contents of <style> the normal way
-                    exerciseStyleElem[0].styleSheet.cssText = exerciseStyleElem[0].styleSheet.cssText + styleContents;
-                } else {
-                    exerciseStyleElem.append(styleContents);
-                }
-            });
-        }
-
-        debugLog("added inline styles");
-
-        // Reset modules to only those required by the current exercise
-        Khan.resetModules(exerciseId);
-
-        // Run the main method of any modules
-        problem.runModules(problem, "Load");
-        debugLog("done with runModules Load");
-        problem.runModules(problem);
-        debugLog("done with runModules");
-
-        if (typeof seedOverride === "undefined" && shouldSkipProblem()) {
-            // If this is a duplicate problem we should skip, just generate
-            // another problem of the same problem type but w/ a different seed.
-            debugLog("duplicate problem!");
-            $(Exercises).trigger("clearExistingProblem");
-            nextSeed(1);
-            return makeProblem(exerciseId);
-        }
-
-        // Store the solution to the problem
-        var solution = problem.find(".solution");
-
-        // Get the multiple choice problems
-        var choices = problem.find(".choices");
-
-        // Get the area into which solutions will be inserted,
-        // Removing any previous answer
-        var solutionarea = $("#solutionarea").empty();
-
-        // XXX(alex): Proactively move #solutionarea back to its original location,
-        // in case it is not already there. This should never be the case,
-        // but that's somehow not very reassuring.
-        $(".solutionarea-placeholder").after($("#solutionarea"));
-
-        // See if we're looking for a specific style of answer
-        var answerType = solution.data("type");
-
-        // Make sure that the answer type exists
-        if (answerType) {
-            if (Khan.answerTypes && !Khan.answerTypes[answerType]) {
-                Khan.error("Unknown answer type specified: " + answerType);
-                return;
-            }
-        }
-
-        if (!answerType) {
-            // If a multiple choice block exists
-            if (choices.length) {
-                answerType = "radio";
-
-                // Otherwise we assume the smart number type
-            } else {
-                answerType = "number";
-            }
-        }
-
-        // Generate a type of problem
-        // (this includes possibly generating the multiple choice problems,
-        // if this fails then we will need to try generating another one.)
-        debugLog("decided on answer type " + answerType);
-
-        // Move the answer area into the question:
-        if (problem.find(".render-answer-area-here").length) {
-            // Either to a specific place in the question...
-            problem.find(".render-answer-area-here").before($("#solutionarea"));
-        } else {
-            // ...or else just to the end of the question.
-            problem.append($("#solutionarea"));
-        }
-
-        // This is where we actually insert content into #solutionarea
-        answerData = Khan.answerTypes[answerType].setup(solutionarea, solution);
-
-        validator = answerData.validator;
-        getAnswer = answerData.answer;
-        debugLog("validator created");
-
-        // A working solution was generated
-        if (validator) {
-            // Have MathJax redo the font metrics for the solution area
-            // (ugh, this is gross)
-            KhanUtil.processAllMath($("#solutionarea")[0], true);
-
-            // Focus the first input
-            // Use .select() and on a delay to make IE happy
-            var firstInput = solutionarea.find(":input").first();
-            if ($(".calculator input:visible").length) {
-                firstInput = $(".calculator input");
-            }
-
-            setTimeout(function() {
-                if (!firstInput.is(":disabled")) {
-                    firstInput.focus();
-                    if (firstInput.is("input:text")) {
-                        firstInput.select();
-                    }
-                }
-            }, 1);
-
-            lastFocusedSolutionInput = firstInput;
-            solutionarea.find(":input").focus(function() {
-                // Save which input is focused so we can refocus it after the user hits Check Answer
-                lastFocusedSolutionInput = this;
-            });
-        } else {
-            // Making the problem failed, let's try again (up to 3 times)
-            debugLog("validator was falsey");
-
-            // Put back #solutionarea
-            // TODO(alex): Consider delaying the #solutionarea move until after we
-            // have confirmed that a working solution was generated so that we
-            // don't have to put it back right away if one wasn't
-            $(".solutionarea-placeholder").after($("#solutionarea"));
-
-            problem.remove();
-            if (failureRetryCount < 100) {
-                failureRetryCount++;
-                // If this seed didn't work for some reason, just try the next
-                // seed for the same problem type. This probably happens because:
-                //
-                // 1)  Something with a multiple-choice answer requires, say 4
-                //     choices, but this seed was only able to generate three
-                //     choices.
-                // 1a) A multiple choice question doesn't require a specific number
-                //     of choices and therefore requires all choices to be shown,
-                //     but there were duplicates among the generate choices leading
-                //     to fewer than all of them able to be shown, so we give up
-                //     and have to try with a different seed.
-                //
-                // TODO(eater): Handle this case better. Since this leads to
-                // potentially duplicate problems (e.g., when seed 10, 11, and 12
-                // all fall back to seed 12), users see less variety.
-                var newSeed = (currentProblemSeed + 1) % bins;
-
-                makeProblem(exerciseId, typeOverride, newSeed);
-            } else {
-                debugLog("Failed making problem too many times");
-                Khan.error("Failed while attempting to MakeProblem too many " +
-                    "times in a row");
-            }
-            return;
-        }
-
-        // Remove the solution and choices elements from the display
-        // Some exercises (e.g., parabola_intuition_3) break if we don't remove
-        // so always do it unless ?noremovesolution is explicitly passed
-        if (localMode && Khan.query.noremovesolution != null) {
-            solution.hide();
-            choices.hide();
-        } else {
-            solution.remove();
-            choices.remove();
-        }
-
-        // Add the problem into the page
-        Khan.scratchpad.resize();
-
-        // Enable the all answer input elements except the check answer button.
-        $("#answercontent input")
-            .not("#check-answer-button, #show-prereqs-button")
-            .prop("disabled", false);
-
-        // save a normal JS array of hints so we can shift() through them later
-        hints = hints.tmpl().children().get();
-
-        // Hook out for exercise test runner
-        if (localMode && parent !== window && typeof parent.jQuery !== "undefined") {
-            parent.jQuery(parent.document).trigger("problemLoaded", [makeProblem, answerData.solution]);
-        }
-
-        $("#hint").val($._("I'd like a hint"));
-
-        $(Exercises).trigger("newProblem", {
-            numHints: hints.length,
-            userExercise: userExercise,
-            answerData: answerData,
-            answerType: answerType,
-            solution: solution,
-            hints: hints,
-            problem: problem
-        });
-
-        hintsUsed = 0;
-
-        // The server says the user has taken hints on this problem already
-        // show all lastCountHints it says we have seen
-        if (userExercise && userExercise.lastCountHints) {
-            _(userExercise.lastCountHints).times(showHint);
-        }
-
-        // Let listeners (like the mobile app) know that we've finished rendering
-        // the initial hints.
-        $(Exercises).trigger("initialHintsShown");
-
-        // Add autocomplete="off" attribute so IE doesn't try to display previous answers
-        $("#problem-and-answer").find("input[type='text'], input[type='number']")
-            .attr("autocomplete", "off");
-
-        // If the textbox is empty disable "Check Answer" button
-        // Note: We don't do this for multiple choice, number line, etc.
-        if (answerType === "text" || answerType === "number") {
-            var checkAnswerButton = $("#check-answer-button");
-            var skipQuestionButton = $("#skip-question-button");
-            checkAnswerButton.attr("disabled", "disabled").attr(
-                "title", $._("Type in an answer first."));
-            // Enables the check answer button - added so that people who type
-            // in a number and hit enter quickly do not have to wait for the
-            // button to be enabled by the key up
-            $("#solutionarea")
-                .on("keypress.emptyAnswer", function(e) {
-                    if (e.keyCode !== 13) {
-                        checkAnswerButton.prop("disabled", false)
-                            .removeAttr("title");
-                    }
-                })
-                .on("keyup.emptyAnswer", function(e) {
-                    var guess = getAnswer();
-                    if (checkIfAnswerEmpty(guess)) {
-                        skipQuestionButton.prop("disabled", false);
-                        checkAnswerButton.prop("disabled", true);
-                    } else if (e.keyCode !== 13) {
-                        // Enable check answer button again as long as it is
-                        // not the enter key
-                        checkAnswerButton.prop("disabled", false);
-                        skipQuestionButton.prop("disabled", true);
-                    }
-                });
-
-        }
-
-        return answerType;
-    }
+    // function makeProblem(exerciseId, typeOverride, seedOverride) {
+    //     debugLog("makeProblem(" + exerciseId + ", " + typeOverride + ", " + seedOverride + ")");
+
+    //     Khan.scratchpad.enable();
+
+    //     // Allow passing in an arbitrary seed
+    //     if (typeof seedOverride !== "undefined") {
+    //         currentProblemSeed = seedOverride;
+
+    //         // If no user, just pick a random seed
+    //     } else if (user == null) {
+    //         currentProblemSeed = Math.abs(randomSeed % bins);
+    //     }
+    //     debugLog("  using seed " + currentProblemSeed + " for " + exerciseId);
+
+    //     // Set randomSeed to what currentProblemSeed is (save currentProblemSeed for recall later)
+    //     randomSeed = currentProblemSeed;
+
+    //     // Check to see if we want to test a specific problem
+    //     if (localMode) {
+    //         typeOverride = typeof typeOverride !== "undefined" ? typeOverride : Khan.query.problem;
+    //     }
+
+    //     // problems contains the unprocessed contents of each problem type within exerciseId
+    //     var problems = exercises.filter(function() {
+    //         return $.data(this, "name") === exerciseId;
+    //     }).children(".problems").children();
+
+    //     if (!problems.length) {
+    //         Khan.error("No problem matching exerciseId " + exerciseId);
+    //     }
+
+    //     if (typeof typeOverride !== "undefined") {
+    //         problem = /^\d+$/.test(typeOverride) ?
+    //             // Access a problem by number
+    //             problems.eq(parseFloat(typeOverride)) :
+
+    //             // Or by its ID
+    //             problems.filter("#" + typeOverride);
+
+    //         currentProblemType = typeOverride;
+
+    //         // Otherwise create a random problem from weights
+    //     } else {
+    //         var typeIndex = [];
+    //         $.each(problems, function(index) {
+    //             if ($(this).data("weight") === 0) {
+    //                 return;
+    //             }
+    //             var weight = $(this).data("weight") || 1;
+    //             _.times(weight, function() {
+    //                 typeIndex.push(index);
+    //             });
+    //         });
+    //         var typeNum = typeIndex[Math.floor(KhanUtil.random() * typeIndex.length)];
+    //         problem = problems.eq(typeNum);
+    //         currentProblemType = $(problem).attr("id") || "" + typeNum;
+    //     }
+
+    //     // TODO(brianmerlob): If we still don't have a problem then it's time to fail as gracefully
+    //     // as we can. This probably occurs during mastery challenges when some sort of race
+    //     // condition causes the type for one problem to sneak it's way in for another problem
+    //     // and then `problem = problems.eq(type)` returns an empty object (thus length === 0).
+    //     // This should _never_ happen, and hopefully these autoSubmitIssues will help debug.
+    //     if (!problem.length && problems.length) {
+    //         Khan.autoSubmitIssue("type was for the incorrect problem; failed gracefully");
+    //         problem = problems.eq(Math.floor(KhanUtil.random() * problems.length));
+    //     }
+
+    //     // Find which exercise this problem is from
+    //     exercise = problem.parents("div.exercise").eq(0);
+
+    //     debugLog("  chose problem type [" + currentProblemType + "] and seed [" + currentProblemSeed + "] for " + exerciseId);
+
+    //     // Work with a clone to avoid modifying the original
+    //     problem = problem.clone();
+
+    //     debugLog("cloned problem");
+
+    //     $("#workarea").append(problem);
+
+    //     // If there's an original problem, add inherited elements
+    //     var parentType = problem.data("type");
+
+    //     // We want to wait until problem is "fully formed" before
+    //     // attempting to move #solutionarea
+    //     while (parentType) {
+    //         // Copy over the parent element to the child
+    //         var original = exercise.find(".problems #" + parentType).clone();
+    //         problem.prepend(original.children().data("inherited", true));
+
+    //         // Keep copying over the parent elements (allowing for deep inheritance)
+    //         parentType = original.data("type");
+    //     }
+
+    //     // Add any global exercise defined elements
+    //     problem.prepend(exercise.children(":not(.problems)").clone().data("inherited", true));
+
+    //     debugLog("cloned global elements");
+
+    //     // Apply templating
+    //     var children = problem
+    //         // var blocks append their contents to the parent
+    //         .find(".vars").tmplApply({
+    //             attribute: "class",
+    //             defaultApply: "appendVars"
+    //         }).end()
+
+    //     // Individual variables override other variables with the same name
+    //     .find(".vars [id]").tmplApply().end()
+
+    //     // We also look at the main blocks within the problem itself to override,
+    //     // ignoring graphie and spin blocks
+    //     .children("[class][class!='graphie'][class!='spin']").tmplApply({
+    //         attribute: "class"
+    //     });
+
+    //     debugLog("ran tmplApply to vars and main elements");
+
+    //     // Finally we do any inheritance to the individual child blocks (such as problem, question, etc.)
+    //     children.each(function() {
+    //         // Apply while adding problem.children() to include
+    //         // template definitions within problem scope
+    //         $(this).find("[id]").add(children).tmplApply();
+    //     });
+
+    //     debugLog("ran tmplApply to [id]");
+
+    //     // Remove and store hints to delay running modules on it
+    //     hints = problem.children(".hints").remove();
+
+    //     // Only show the calculator if it's specifically allowed for this problem
+    //     if (problem.data("calculator") == null) {
+    //         $("#calculator").hide();
+    //     } else {
+    //         $("#calculator").show();
+    //     }
+
+    //     debugLog("removed hints from DOM");
+
+    //     // Evaluate any inline script tags in this exercise's source
+    //     $.each(exercise.data("script") || [], function(i, scriptContents) {
+    //         $.globalEval(scriptContents);
+    //     });
+
+    //     debugLog("evaled inline scripts");
+
+    //     // ...and inline style tags.
+    //     if (exercise.data("style")) {
+    //         var exerciseStyleElem = $("#exercise-inline-style");
+
+    //         // Clear old exercise style definitions
+    //         if (exerciseStyleElem.length && exerciseStyleElem[0].styleSheet) {
+    //             // IE refuses to modify the contents of <style> the normal way
+    //             exerciseStyleElem[0].styleSheet.cssText = "";
+    //         } else {
+    //             exerciseStyleElem.empty();
+    //         }
+
+    //         // Then add rules specific to this exercise.
+    //         $.each(exercise.data("style"), function(i, styleContents) {
+    //             if (exerciseStyleElem.length && exerciseStyleElem[0].styleSheet) {
+    //                 // IE refuses to modify the contents of <style> the normal way
+    //                 exerciseStyleElem[0].styleSheet.cssText = exerciseStyleElem[0].styleSheet.cssText + styleContents;
+    //             } else {
+    //                 exerciseStyleElem.append(styleContents);
+    //             }
+    //         });
+    //     }
+
+    //     debugLog("added inline styles");
+
+    //     // Reset modules to only those required by the current exercise
+    //     Khan.resetModules(exerciseId);
+
+    //     // Run the main method of any modules
+    //     problem.runModules(problem, "Load");
+    //     debugLog("done with runModules Load");
+    //     problem.runModules(problem);
+    //     debugLog("done with runModules");
+
+    //     if (typeof seedOverride === "undefined" && shouldSkipProblem()) {
+    //         // If this is a duplicate problem we should skip, just generate
+    //         // another problem of the same problem type but w/ a different seed.
+    //         debugLog("duplicate problem!");
+    //         $(Exercises).trigger("clearExistingProblem");
+    //         nextSeed(1);
+    //         return makeProblem(exerciseId);
+    //     }
+
+    //     // Store the solution to the problem
+    //     var solution = problem.find(".solution");
+
+    //     // Get the multiple choice problems
+    //     var choices = problem.find(".choices");
+
+    //     // Get the area into which solutions will be inserted,
+    //     // Removing any previous answer
+    //     var solutionarea = $("#solutionarea").empty();
+
+    //     // XXX(alex): Proactively move #solutionarea back to its original location,
+    //     // in case it is not already there. This should never be the case,
+    //     // but that's somehow not very reassuring.
+    //     $(".solutionarea-placeholder").after($("#solutionarea"));
+
+    //     // See if we're looking for a specific style of answer
+    //     var answerType = solution.data("type");
+
+    //     // Make sure that the answer type exists
+    //     if (answerType) {
+    //         if (Khan.answerTypes && !Khan.answerTypes[answerType]) {
+    //             Khan.error("Unknown answer type specified: " + answerType);
+    //             return;
+    //         }
+    //     }
+
+    //     if (!answerType) {
+    //         // If a multiple choice block exists
+    //         if (choices.length) {
+    //             answerType = "radio";
+
+    //             // Otherwise we assume the smart number type
+    //         } else {
+    //             answerType = "number";
+    //         }
+    //     }
+
+    //     // Generate a type of problem
+    //     // (this includes possibly generating the multiple choice problems,
+    //     // if this fails then we will need to try generating another one.)
+    //     debugLog("decided on answer type " + answerType);
+
+    //     // Move the answer area into the question:
+    //     if (problem.find(".render-answer-area-here").length) {
+    //         // Either to a specific place in the question...
+    //         problem.find(".render-answer-area-here").before($("#solutionarea"));
+    //     } else {
+    //         // ...or else just to the end of the question.
+    //         problem.append($("#solutionarea"));
+    //     }
+
+    //     // This is where we actually insert content into #solutionarea
+    //     answerData = Khan.answerTypes[answerType].setup(solutionarea, solution);
+
+    //     validator = answerData.validator;
+    //     getAnswer = answerData.answer;
+    //     debugLog("validator created");
+
+    //     // A working solution was generated
+    //     if (validator) {
+    //         // Have MathJax redo the font metrics for the solution area
+    //         // (ugh, this is gross)
+    //         KhanUtil.processAllMath($("#solutionarea")[0], true);
+
+    //         // Focus the first input
+    //         // Use .select() and on a delay to make IE happy
+    //         var firstInput = solutionarea.find(":input").first();
+    //         if ($(".calculator input:visible").length) {
+    //             firstInput = $(".calculator input");
+    //         }
+
+    //         setTimeout(function() {
+    //             if (!firstInput.is(":disabled")) {
+    //                 firstInput.focus();
+    //                 if (firstInput.is("input:text")) {
+    //                     firstInput.select();
+    //                 }
+    //             }
+    //         }, 1);
+
+    //         lastFocusedSolutionInput = firstInput;
+    //         solutionarea.find(":input").focus(function() {
+    //             // Save which input is focused so we can refocus it after the user hits Check Answer
+    //             lastFocusedSolutionInput = this;
+    //         });
+    //     } else {
+    //         // Making the problem failed, let's try again (up to 3 times)
+    //         debugLog("validator was falsey");
+
+    //         // Put back #solutionarea
+    //         // TODO(alex): Consider delaying the #solutionarea move until after we
+    //         // have confirmed that a working solution was generated so that we
+    //         // don't have to put it back right away if one wasn't
+    //         $(".solutionarea-placeholder").after($("#solutionarea"));
+
+    //         problem.remove();
+    //         if (failureRetryCount < 100) {
+    //             failureRetryCount++;
+    //             // If this seed didn't work for some reason, just try the next
+    //             // seed for the same problem type. This probably happens because:
+    //             //
+    //             // 1)  Something with a multiple-choice answer requires, say 4
+    //             //     choices, but this seed was only able to generate three
+    //             //     choices.
+    //             // 1a) A multiple choice question doesn't require a specific number
+    //             //     of choices and therefore requires all choices to be shown,
+    //             //     but there were duplicates among the generate choices leading
+    //             //     to fewer than all of them able to be shown, so we give up
+    //             //     and have to try with a different seed.
+    //             //
+    //             // TODO(eater): Handle this case better. Since this leads to
+    //             // potentially duplicate problems (e.g., when seed 10, 11, and 12
+    //             // all fall back to seed 12), users see less variety.
+    //             var newSeed = (currentProblemSeed + 1) % bins;
+
+    //             makeProblem(exerciseId, typeOverride, newSeed);
+    //         } else {
+    //             debugLog("Failed making problem too many times");
+    //             Khan.error("Failed while attempting to MakeProblem too many " +
+    //                 "times in a row");
+    //         }
+    //         return;
+    //     }
+
+    //     // Remove the solution and choices elements from the display
+    //     // Some exercises (e.g., parabola_intuition_3) break if we don't remove
+    //     // so always do it unless ?noremovesolution is explicitly passed
+    //     if (localMode && Khan.query.noremovesolution != null) {
+    //         solution.hide();
+    //         choices.hide();
+    //     } else {
+    //         solution.remove();
+    //         choices.remove();
+    //     }
+
+    //     // Add the problem into the page
+    //     Khan.scratchpad.resize();
+
+    //     // Enable the all answer input elements except the check answer button.
+    //     $("#answercontent input")
+    //         .not("#check-answer-button, #show-prereqs-button")
+    //         .prop("disabled", false);
+
+    //     // save a normal JS array of hints so we can shift() through them later
+    //     hints = hints.tmpl().children().get();
+
+    //     // Hook out for exercise test runner
+    //     if (localMode && parent !== window && typeof parent.jQuery !== "undefined") {
+    //         parent.jQuery(parent.document).trigger("problemLoaded", [makeProblem, answerData.solution]);
+    //     }
+
+    //     $("#hint").val($._("I'd like a hint"));
+
+    //     $(Exercises).trigger("newProblem", {
+    //         numHints: hints.length,
+    //         userExercise: userExercise,
+    //         answerData: answerData,
+    //         answerType: answerType,
+    //         solution: solution,
+    //         hints: hints,
+    //         problem: problem
+    //     });
+
+    //     hintsUsed = 0;
+
+    //     // The server says the user has taken hints on this problem already
+    //     // show all lastCountHints it says we have seen
+    //     if (userExercise && userExercise.lastCountHints) {
+    //         _(userExercise.lastCountHints).times(showHint);
+    //     }
+
+    //     // Let listeners (like the mobile app) know that we've finished rendering
+    //     // the initial hints.
+    //     $(Exercises).trigger("initialHintsShown");
+
+    //     // Add autocomplete="off" attribute so IE doesn't try to display previous answers
+    //     $("#problem-and-answer").find("input[type='text'], input[type='number']")
+    //         .attr("autocomplete", "off");
+
+    //     // If the textbox is empty disable "Check Answer" button
+    //     // Note: We don't do this for multiple choice, number line, etc.
+    //     if (answerType === "text" || answerType === "number") {
+    //         var checkAnswerButton = $("#check-answer-button");
+    //         var skipQuestionButton = $("#skip-question-button");
+    //         checkAnswerButton.attr("disabled", "disabled").attr(
+    //             "title", $._("Type in an answer first."));
+    //         // Enables the check answer button - added so that people who type
+    //         // in a number and hit enter quickly do not have to wait for the
+    //         // button to be enabled by the key up
+    //         $("#solutionarea")
+    //             .on("keypress.emptyAnswer", function(e) {
+    //                 if (e.keyCode !== 13) {
+    //                     checkAnswerButton.prop("disabled", false)
+    //                         .removeAttr("title");
+    //                 }
+    //             })
+    //             .on("keyup.emptyAnswer", function(e) {
+    //                 var guess = getAnswer();
+    //                 if (checkIfAnswerEmpty(guess)) {
+    //                     skipQuestionButton.prop("disabled", false);
+    //                     checkAnswerButton.prop("disabled", true);
+    //                 } else if (e.keyCode !== 13) {
+    //                     // Enable check answer button again as long as it is
+    //                     // not the enter key
+    //                     checkAnswerButton.prop("disabled", false);
+    //                     skipQuestionButton.prop("disabled", true);
+    //                 }
+    //             });
+
+    //     }
+
+    //     return answerType;
+    // }
     function showHint() {
         debugLog("showHint()");
         // Called when user hits hint button triggering showHint event or when
@@ -2049,8 +2028,7 @@ define(function(require) {
 
         debugLog("loadExercise start " + fileName);
         // Packing occurs on the server but at the same "exercises/" URL
-        // $.get(urlBase + "exercises/" + fileName).done(function(data) {
-        $.get(exerciesPath + fileName).done(function(data) {
+        $.get(urlBase + "exercises/" + fileName).done(function(data) {
             debugLog("loadExercise got " + fileName);
 
             // Get rid of any external scripts in data before we shove data
@@ -2239,4 +2217,5 @@ define(function(require) {
         // Generate the initial problem when dependencies are done being loaded
         makeProblem(currentExerciseId);
     }
+
 });
