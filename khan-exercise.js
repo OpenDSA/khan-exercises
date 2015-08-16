@@ -295,13 +295,17 @@ define(function (require) {
     },
 
     // Added by Hosam Shahin
-    // TO load OpenDSA summary exercises and prepare exercise html DOM before 
+    // TO load OpenDSA summary exercises and prepare exercise html DOM before
     // handling it to KA framework
     loadOpenDSAExercises: function () {
       $(function () {
         var promises = [];
 
-        // if OpenDSA Summ exercises
+        // if OpenDSA exercise is not "Summ" then fire KA directly
+        if (currentExerciseId.indexOf("Summ", currentExerciseId.length - "Summ".length) === -1) {
+          return Khan.loadLocalModeSiteWhenReady();
+        }
+
         var remoteExercises = $("div.exercise[data-name]");
 
         remoteExercises.each(function () {
@@ -309,19 +313,27 @@ define(function (require) {
           var fileName = exerciseId + ".html";
           promises.push(loadExercise(exerciseId, fileName));
         });
+
         // All remote exercises (if any) have now been loaded
         $.when.apply($, promises).then(function () {
           // prepare exercise html layout as if all summary exercises were inclused in one file
+          // remove the exercise tag and start a fresh one
+          $("div.exercise").detach();
+          // create new .exercise div
+          var $newExercise = $("<div>").addClass("exercise").data("name", currentExerciseId)
+            .append($("<div>").addClass("problems"));
 
+          // add problems in each file to the new exercise div
           remoteExercises.each(function (index) {
             var exerciseId = $(this).data("name");
 
-            console.log(exerciseId);
-            console.dir(exercises[index]);
+            var problems = $(exercises[index]).children(".problems").children();
+            problems.attr("id", exerciseId);
+
+            $newExercise.children(".problems").append(problems);
 
           });
-          // All modules have now been loaded
-          Khan.exercises = exercises;
+          $('body').prepend($newExercise);
           Khan.loadLocalModeSiteWhenReady();
         });
       });
@@ -925,17 +937,9 @@ define(function (require) {
       // already get tagged with the current, original data-name.
       $("div.exercise").not("[data-name]").data("name", currentExerciseId);
 
-      // var remoteExercises = $("div.exercise[data-name]");
-
-      // remoteExercises.each(function() {
-      //     var exerciseId = $(this).data("name");
-      //     var fileName = exerciseId + ".html";
-      //     promises.push(loadExercise(exerciseId, fileName));
-      // });
       // All remote exercises (if any) have now been loaded
       $.when.apply($, promises).then(function () {
         // All modules have now been loaded
-        Khan.exercises = exercises;
         initialModulesPromise.resolve();
       });
     });
@@ -974,13 +978,9 @@ define(function (require) {
       seedOverride = userExercise.seed;
 
     var exerciseId = userExercise.exerciseModel.name,
-      exerciseFile = userExercise.exerciseModel.fileName,
-      rootName = userExercise.exerciseModel.rootName;
+      exerciseFile = userExercise.exerciseModel.fileName;
 
     function finishRender() {
-      var problems = exercises.filter(function () {
-        return $.data(this, "rootName") === exerciseId;
-      }).children(".problems").children();
       // Make scratchpad persistent per-user
       if (user && window.LocalStore) {
         var lastScratchpad = LocalStore.get("scratchpad:" + user);
@@ -2269,7 +2269,9 @@ define(function (require) {
 
     $(Exercises).trigger("problemTemplateRendered");
 
+    // console.dir(exercises);
     exercises = exercises.add($("div.exercise").detach());
+    // console.dir(exercises);
     // Generate the initial problem when dependencies are done being loaded
     makeProblem(currentExerciseId);
   }
