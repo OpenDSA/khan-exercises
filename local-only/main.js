@@ -31,7 +31,8 @@ requirejs([
             "/khan-exercises/interface.js",
         ], function () {
             requirejs(["/khan-exercises/khan-exercise.js"], function () {
-                Khan.loadLocalModeSiteWhenReady();
+                // Khan.loadLocalModeSiteWhenReady();
+                Khan.loadOpenDSAExercises();
             });
         });
     });
