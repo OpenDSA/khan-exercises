@@ -302,7 +302,8 @@ define(function (require) {
         var promises = [];
 
         // if OpenDSA exercise is not "Summ" then fire KA directly
-        if (currentExerciseId.indexOf("Summ", currentExerciseId.length - "Summ".length) === -1) {
+        // if (currentExerciseId.indexOf("Summ", currentExerciseId.length - "Summ".length) === -1) {
+        if (currentExerciseId.indexOf("Summ") == -1) {
           return Khan.loadLocalModeSiteWhenReady();
         }
 
@@ -317,7 +318,7 @@ define(function (require) {
         // All remote exercises (if any) have now been loaded
         $.when.apply($, promises).then(function () {
           // prepare exercise html layout as if all summary exercises were inclused in one file
-          // remove the exercise tag and start a fresh one
+          // remove all exercise elements
           $("div.exercise").detach();
           // create new .exercise div
           var $newExercise = $("<div>").addClass("exercise").data("name", currentExerciseId)
@@ -916,8 +917,7 @@ define(function (require) {
       // in the data-require on <html>
       var mods = Khan.getBaseModules();
       if (localMode) {
-        var modString = document.documentElement.getAttribute(
-          "data-require") || "";
+        var modString = document.documentElement.getAttribute("data-require") || "";
         var exMods = modString.length ? modString.split(" ") : [];
 
         Khan.exerciseModulesMap[currentExerciseId] = exMods;
