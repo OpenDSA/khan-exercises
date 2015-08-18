@@ -2006,11 +2006,14 @@ define(function (require) {
     $(Exercises)
       .bind("newProblem", function () {
         renderDebugInfo();
-        var OpenPopKa, codeMirrorReadOnly;
+        if (typeof config == 'undefined') {
+          return;
+        }
 
+        var OpenPopKa, codeMirrorReadOnly;
         if (currentExerciseId.indexOf("Summ") == -1) {
-          OpenPopKa = config ? config.OpenPopKa || false : false;
-          codeMirrorReadOnly = config ? config.codeMirrorReadOnly || false : false;
+          OpenPopKa = config.OpenPopKa || false;
+          codeMirrorReadOnly = config.codeMirrorReadOnly || false;
         } else {
           OpenPopKa = config[currentProblemType] ? config[currentProblemType].OpenPopKa || false : false;
           codeMirrorReadOnly = config[currentProblemType] ? config[currentProblemType].codeMirrorReadOnly || false : false;
