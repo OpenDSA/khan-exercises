@@ -57,7 +57,7 @@
     * attemptMessageShown -- when a user attempts a problem and a message is
       shown in response, e.g. "We don't understand your answer."
 */
-define(function (require) {
+define(function(require) {
   // Modified by Hosam Shahin
   // OpenDSA Exercises path
   var exerciesPath = window.location.pathname;
@@ -132,7 +132,7 @@ define(function (require) {
 
     // Bug-hunting "undefined" attempt content
     debugLogLog = ["start of log"],
-    debugLog = function (l) {
+    debugLog = function(l) {
       debugLogLog.push(l);
     },
 
@@ -164,8 +164,8 @@ define(function (require) {
 
   // Add in the site stylesheets
   if (localMode) {
-    (function () {
-      var addLink = function (url) {
+    (function() {
+      var addLink = function(url) {
         var link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = urlBase + url;
@@ -226,20 +226,20 @@ define(function (require) {
       "constructions": ["kmatrix"]
     },
 
-    warnTimeout: function () {
+    warnTimeout: function() {
       $(Exercises).trigger("warning", [$._("Your internet might be too " +
           "slow to see an exercise. Refresh the page or " +
           "<a href='' id='warn-report'>report a problem</a>."),
         false
       ]);
       // TODO(alpert): This event binding is kind of gross
-      $("#warn-report").click(function (e) {
+      $("#warn-report").click(function(e) {
         e.preventDefault();
         $("#report").click();
       });
     },
 
-    warnFont: function () {
+    warnFont: function() {
       var warning;
       if ($.browser.msie) {
         warning = $._("You should " +
@@ -257,7 +257,7 @@ define(function (require) {
     },
 
     // TODO(alpert): This doesn't need to be in the Khan object.
-    getBaseModules: function () {
+    getBaseModules: function() {
       var mods = [];
       // Base modules required for every problem.  These are specified
       // as filenames (minus the .js extension) relative to util/.
@@ -269,12 +269,12 @@ define(function (require) {
       return mods;
     },
 
-    resetModules: function (exerciseId) {
+    resetModules: function(exerciseId) {
       var modules = Khan.getBaseModules().concat(
         Khan.exerciseModulesMap[exerciseId]);
       var moduleSet = {};
 
-      $.each(modules, function (i, mod) {
+      $.each(modules, function(i, mod) {
         useModule(mod);
       });
 
@@ -285,7 +285,7 @@ define(function (require) {
           moduleSet[modNameOrObject] = true;
           var deps = Khan.moduleDependencies[modNameOrObject] || [];
 
-          $.each(deps, function (i, mod) {
+          $.each(deps, function(i, mod) {
             useModule(mod);
           });
         } else if (modNameOrObject.name) {
@@ -297,8 +297,8 @@ define(function (require) {
     // Added by Hosam Shahin
     // TO load OpenDSA summary exercises and prepare exercise html DOM before
     // handling it to KA framework
-    loadOpenDSAExercises: function () {
-      $(function () {
+    loadOpenDSAExercises: function() {
+      $(function() {
         var promises = [];
 
         // if OpenDSA exercise is not "Summ" then fire KA directly
@@ -308,14 +308,14 @@ define(function (require) {
 
         var remoteExercises = $("div.exercise[data-name]");
 
-        remoteExercises.each(function () {
+        remoteExercises.each(function() {
           var exerciseId = $(this).data("name");
           var fileName = exerciseId + ".html";
           promises.push(loadExercise(exerciseId, fileName));
         });
 
         // All remote exercises (if any) have now been loaded
-        $.when.apply($, promises).then(function () {
+        $.when.apply($, promises).then(function() {
           // Prepare exercise html markup as if all summary exercises were inclused in one file
 
           // Remove all exercise elements
@@ -327,13 +327,15 @@ define(function (require) {
             .append($("<div>").addClass("problems"));
 
           // add problems in each file to the new exercise div
-          remoteExercises.each(function (index) {
+          remoteExercises.each(function(index) {
             var exerciseId = $(this).data("name");
             var vars = $(exercises[index]).children(".vars");
-            var problem = $(exercises[index]).children(".problems").children(".problem");
-            var $newProblem = $("<div>").addClass("problem");
+            var problem = $(exercises[index]).children(".problems").children("div[id]").children();
+
+            var $newProblem = $("<div>");
             $newProblem.attr("id", exerciseId).append(vars).append(problem);
             $newExercise.children(".problems").append($newProblem);
+            // console.dir($newExercise);
           });
 
           $('body').prepend($newExercise);
@@ -342,8 +344,8 @@ define(function (require) {
       });
     },
 
-    loadLocalModeSiteWhenReady: function () {
-      initialModulesPromise.then(function () {
+    loadLocalModeSiteWhenReady: function() {
+      initialModulesPromise.then(function() {
         Khan.exercises = exercises;
         loadLocalModeSite();
       });
@@ -355,7 +357,7 @@ define(function (require) {
 
       // http://burtleburtle.net/bob/hash/integer.html
       // This is also used as a PRNG in the V8 benchmark suite
-      random: function () {
+      random: function() {
         // Robert Jenkins' 32 bit integer hash function.
         var seed = randomSeed;
         seed = ((seed + 0x7ed55d16) + (seed << 12)) & 0xffffffff;
@@ -369,7 +371,7 @@ define(function (require) {
 
       // Rounds num to X places, and uses the proper decimal seperator.
       // But does *not* insert thousands separators.
-      localeToFixed: function (num, places) {
+      localeToFixed: function(num, places) {
         var localeDecimalSeperator = icu.getDecimalFormatSymbols().decimal_separator;
         var localeFixed = num.toFixed(places).replace(".", localeDecimalSeperator);
         if (localeFixed === "-0") {
@@ -382,12 +384,12 @@ define(function (require) {
     // Query String Parser
     // Original from:
     // http://stackoverflow.com/questions/901115/get-querystring-values-in-javascript/2880929#2880929
-    queryString: function () {
+    queryString: function() {
       var urlParams = {},
         e,
         a = /\+/g, // Regex for replacing addition symbol with a space
         r = /([^&=]+)=?([^&]*)/g,
-        d = function (s) {
+        d = function(s) {
           return decodeURIComponent(s.replace(a, " "));
         },
         q = window.location.search.substring(1);
@@ -400,21 +402,21 @@ define(function (require) {
     },
 
     // Display error messages
-    error: function () {
+    error: function() {
       if (typeof console !== "undefined") {
-        $.each(arguments, function (ix, arg) {
+        $.each(arguments, function(ix, arg) {
           debugLog("error: " + arg);
           console.error(arg);
         });
       }
     },
 
-    scratchpad: (function () {
+    scratchpad: (function() {
       var disabled = false,
         wasVisible, pad;
 
       var actions = {
-        disable: function () {
+        disable: function() {
           wasVisible = actions.isVisible();
           actions.hide();
 
@@ -423,7 +425,7 @@ define(function (require) {
           disabled = true;
         },
 
-        enable: function () {
+        enable: function() {
           if (wasVisible) {
             actions.show();
             wasVisible = false;
@@ -434,17 +436,17 @@ define(function (require) {
           disabled = false;
         },
 
-        isVisible: function () {
+        isVisible: function() {
           return $("#scratchpad").is(":visible");
         },
 
-        show: function () {
+        show: function() {
 
           if (actions.isVisible()) {
             return;
           }
 
-          var makeVisible = function () {
+          var makeVisible = function() {
             if (!$("#scratchpad").length) {
               // Scratchpad's gone! The exercise template
               // probably isn't on screen right now, so let's
@@ -471,7 +473,7 @@ define(function (require) {
           makeVisible();
         },
 
-        hide: function () {
+        hide: function() {
           if (!actions.isVisible()) {
             return;
           }
@@ -482,17 +484,17 @@ define(function (require) {
           $("#scratchpad-show").text($._("Show scratchpad"));
         },
 
-        toggle: function () {
+        toggle: function() {
           actions.isVisible() ? actions.hide() : actions.show();
         },
 
-        clear: function () {
+        clear: function() {
           if (pad) {
             pad.clear();
           }
         },
 
-        resize: function () {
+        resize: function() {
           if (pad) {
             pad.resize();
           }
@@ -502,7 +504,7 @@ define(function (require) {
       return actions;
     })(),
 
-    getSeedInfo: function () {
+    getSeedInfo: function() {
       return {
         // A hash representing the exercise version
         sha1: typeof userExercise !== "undefined" ?
@@ -512,13 +514,13 @@ define(function (require) {
       };
     },
 
-    getPreviewUrl: function () {
+    getPreviewUrl: function() {
       return window.location.protocol + "//" + window.location.host +
         "/preview/content/e/" + currentExerciseId + "?seed=" +
         currentProblemSeed + "&problem=" + currentProblemType;
     },
 
-    getIssueInfo: function () {
+    getIssueInfo: function() {
       return {
         framework: "khan-exercises",
         pretitle: currentExerciseName,
@@ -535,11 +537,11 @@ define(function (require) {
       };
     },
 
-    scoreInput: function () {
+    scoreInput: function() {
       return validator(getAnswer());
     },
 
-    submitIssue: function (issueInfo, onSuccess, onFailure) {
+    submitIssue: function(issueInfo, onSuccess, onFailure) {
       var dataObj = {
         fields: {
           project: {
@@ -579,7 +581,7 @@ define(function (require) {
       });
     },
 
-    autoSubmitIssue: function (title, description) {
+    autoSubmitIssue: function(title, description) {
       // Capture a stack trace for easier debugging. Safari requires an
       // exception to be thrown in order for .stack to be set
       var err;
@@ -614,9 +616,9 @@ define(function (require) {
      * Hijacks a specified link so that it opens up the issue form.
      * @param {string} selector The link selector - defaults to "#report"
      */
-    initReportIssueLink: function (selector) {
+    initReportIssueLink: function(selector) {
       selector = selector || "#report";
-      $(selector).click(function (e) {
+      $(selector).click(function(e) {
         e.preventDefault();
 
         if (typeof KA !== "undefined" && KA.vipIssueReporter) {
@@ -640,13 +642,13 @@ define(function (require) {
           $("#issue, #issue .issue-form").show();
           $("html, body").animate({
             scrollTop: $("#issue").offset().top
-          }, 500, function () {
+          }, 500, function() {
             $("#issue-title").focus();
           });
         }
       });
 
-      $("input[name=issue-type]").on("click", function () {
+      $("input[name=issue-type]").on("click", function() {
         if ($(this).prop("id") === "issue-hints-wrong") {
           $("#issue-body").prop("placeholder", $._("Tell us exactly " +
             "what's wrong with the hints. What answer did " +
@@ -670,7 +672,7 @@ define(function (require) {
       }
 
       // Hide issue form.
-      $("#issue-cancel").click(function (e) {
+      $("#issue-cancel").click(function(e) {
         e.preventDefault();
 
         $("#issue").hide(500);
@@ -679,7 +681,7 @@ define(function (require) {
 
       // When the Show Answer button of the issue form is clicked,
       // we need to show all of the hints.
-      $("#issue-show-answer").click(function (e) {
+      $("#issue-show-answer").click(function(e) {
         e.preventDefault();
 
         // If there is a hint available, we'll show it by clicking
@@ -711,12 +713,12 @@ define(function (require) {
         showHintIfAvailable();
       });
 
-      $(Exercises).bind("newProblem", function () {
+      $(Exercises).bind("newProblem", function() {
         $("#issue-show-answer").removeClass("disabled");
       });
 
       // Submit an issue.
-      $("#issue .issue-form input:submit").click(function (e) {
+      $("#issue .issue-form input:submit").click(function(e) {
 
         e.preventDefault();
 
@@ -768,10 +770,10 @@ define(function (require) {
           "sessionStorage NOT enabled" : null);
         var warningInfo = $("#warning-bar-content").text();
         var parts = [sessionStorageInfo, mathjaxInfo, warningInfo];
-        var debugInfo = $.grep(parts, function (e) {
+        var debugInfo = $.grep(parts, function(e) {
           return e != null;
         }).join("\n\n");
-        var mathjaxLoadFailures = $.map(MathJax.Ajax.loading, function (info, script) {
+        var mathjaxLoadFailures = $.map(MathJax.Ajax.loading, function(info, script) {
           if (info.status === -1) {
             return [script + ": error"];
           } else {
@@ -813,7 +815,7 @@ define(function (require) {
         $("#issue-cancel").hide();
         $("#issue-throbber").show();
 
-        var onSuccess = function (data) {
+        var onSuccess = function(data) {
           // hide the form
           $("#issue-throbber").hide();
           $("#issue .issue-form").hide();
@@ -843,7 +845,7 @@ define(function (require) {
           $("#issue-throbber").hide();
         };
 
-        var onFailure = function () {
+        var onFailure = function() {
           // show status message
           $("#issue-status").addClass("error")
             .html($._("Communication with issue tracker isn't " +
@@ -873,7 +875,7 @@ define(function (require) {
       });
     },
 
-    cleanupProblem: function () {
+    cleanupProblem: function() {
       $("#workarea, #hintsarea").runModules(problem, "Cleanup");
     }
   };
@@ -913,7 +915,7 @@ define(function (require) {
 
     Khan.mathJaxLoaded = loadMathJax();
 
-    $(function () {
+    $(function() {
       var promises = [];
 
       // Load all base modules, and if this is local mode, any specified
@@ -927,7 +929,7 @@ define(function (require) {
         mods.push.apply(mods, exMods);
       }
 
-      $.each(mods, function (i, mod) {
+      $.each(mods, function(i, mod) {
         promises.push(loadModule(mod));
       });
 
@@ -941,7 +943,7 @@ define(function (require) {
       $("div.exercise").not("[data-name]").data("name", currentExerciseId);
 
       // All remote exercises (if any) have now been loaded
-      $.when.apply($, promises).then(function () {
+      $.when.apply($, promises).then(function() {
         // All modules have now been loaded
         initialModulesPromise.resolve();
       });
@@ -949,7 +951,7 @@ define(function (require) {
 
     $.fn.extend({
       // Run the methods provided by a module against some elements
-      runModules: function (problem, type) {
+      runModules: function(problem, type) {
         type = type || "";
 
         var info = {
@@ -957,11 +959,11 @@ define(function (require) {
           exerciseId: currentExerciseId
         };
 
-        this.each(function (i, elem) {
+        this.each(function(i, elem) {
           elem = $(elem);
 
           // Run the main method of any modules
-          $.each(Khan.modules, function (mod) {
+          $.each(Khan.modules, function(mod) {
             if ($.fn[mod + type]) {
               elem[mod + type](problem, info);
             }
@@ -1000,7 +1002,7 @@ define(function (require) {
 
     debugLog("loading and rendering " + exerciseId);
     loadExercise(exerciseId, exerciseFile).then(
-      function () {
+      function() {
         debugLog("loaded " + exerciseId + ", now rendering");
         finishRender();
       });
@@ -1088,7 +1090,7 @@ define(function (require) {
     }
 
     // problems contains the unprocessed contents of each problem type within exerciseId
-    var problems = exercises.filter(function () {
+    var problems = exercises.filter(function() {
       return $.data(this, "name") === exerciseId;
     }).children(".problems").children();
 
@@ -1109,12 +1111,12 @@ define(function (require) {
       // Otherwise create a random problem from weights
     } else {
       var typeIndex = [];
-      $.each(problems, function (index) {
+      $.each(problems, function(index) {
         if ($(this).data("weight") === 0) {
           return;
         }
         var weight = $(this).data("weight") || 1;
-        _.times(weight, function () {
+        _.times(weight, function() {
           typeIndex.push(index);
         });
       });
@@ -1184,7 +1186,7 @@ define(function (require) {
     debugLog("ran tmplApply to vars and main elements");
 
     // Finally we do any inheritance to the individual child blocks (such as problem, question, etc.)
-    children.each(function () {
+    children.each(function() {
       // Apply while adding problem.children() to include
       // template definitions within problem scope
       $(this).find("[id]").add(children).tmplApply();
@@ -1205,7 +1207,7 @@ define(function (require) {
     debugLog("removed hints from DOM");
 
     // Evaluate any inline script tags in this exercise's source
-    $.each(exercise.data("script") || [], function (i, scriptContents) {
+    $.each(exercise.data("script") || [], function(i, scriptContents) {
       $.globalEval(scriptContents);
     });
 
@@ -1224,7 +1226,7 @@ define(function (require) {
       }
 
       // Then add rules specific to this exercise.
-      $.each(exercise.data("style"), function (i, styleContents) {
+      $.each(exercise.data("style"), function(i, styleContents) {
         if (exerciseStyleElem.length && exerciseStyleElem[0].styleSheet) {
           // IE refuses to modify the contents of <style> the normal way
           exerciseStyleElem[0].styleSheet.cssText = exerciseStyleElem[0].styleSheet.cssText + styleContents;
@@ -1325,7 +1327,7 @@ define(function (require) {
         firstInput = $(".calculator input");
       }
 
-      setTimeout(function () {
+      setTimeout(function() {
         if (!firstInput.is(":disabled")) {
           firstInput.focus();
           if (firstInput.is("input:text")) {
@@ -1335,7 +1337,7 @@ define(function (require) {
       }, 1);
 
       lastFocusedSolutionInput = firstInput;
-      solutionarea.find(":input").focus(function () {
+      solutionarea.find(":input").focus(function() {
         // Save which input is focused so we can refocus it after the user hits Check Answer
         lastFocusedSolutionInput = this;
       });
@@ -1444,13 +1446,13 @@ define(function (require) {
       // in a number and hit enter quickly do not have to wait for the
       // button to be enabled by the key up
       $("#solutionarea")
-        .on("keypress.emptyAnswer", function (e) {
+        .on("keypress.emptyAnswer", function(e) {
           if (e.keyCode !== 13) {
             checkAnswerButton.prop("disabled", false)
               .removeAttr("title");
           }
         })
-        .on("keyup.emptyAnswer", function (e) {
+        .on("keyup.emptyAnswer", function(e) {
           var guess = getAnswer();
           if (checkIfAnswerEmpty(guess)) {
             skipQuestionButton.prop("disabled", false);
@@ -1515,7 +1517,7 @@ define(function (require) {
 
     // Show the debug info
     if (localMode && Khan.query.debug != null) {
-      $(document).keypress(function (e) {
+      $(document).keypress(function(e) {
         if (e.charCode === 104) {
           $("#hint").click();
         }
@@ -1543,7 +1545,7 @@ define(function (require) {
 
       if (!Khan.query.activity) {
         var historyURL = debugURL + "&seed=" + currentProblemSeed + "&activity=";
-        $("<a>Problem history</a>").attr("href", "javascript:").click(function () {
+        $("<a>Problem history</a>").attr("href", "javascript:").click(function() {
           window.location.href = historyURL + encodeURIComponent(
             JSON.stringify(Exercises.userActivityLog));
         }).appendTo(links);
@@ -1557,7 +1559,7 @@ define(function (require) {
 
       links.append("<br><b>Problem types:</b><br>");
 
-      exercises.children(".problems").children().each(function (n, prob) {
+      exercises.children(".problems").children().each(function(n, prob) {
         var probID = $(prob).attr("id") || "" + n;
         links.append($("<div>")
           .css({
@@ -1599,7 +1601,7 @@ define(function (require) {
       if (typeof $.tmpl.VARS !== "undefined") {
         var varInfo = $("<p>");
 
-        $.each($.tmpl.VARS, function (name, value) {
+        $.each($.tmpl.VARS, function(name, value) {
           var str;
 
           if (typeof value === "function") {
@@ -1643,7 +1645,7 @@ define(function (require) {
 
       links.append($("<b>").text("Problem types:"));
 
-      exercises.children(".problems").children().each(function (n, prob) {
+      exercises.children(".problems").children().each(function(n, prob) {
         var probName = $(prob).attr("id");
         var probID = probName || n;
         var weight = $(prob).data("weight");
@@ -1701,16 +1703,16 @@ define(function (require) {
         containsAns = false,
         separator = icu.getDecimalFormatSymbols().decimal_separator;
 
-      var formatInputHistory = function (text) {
+      var formatInputHistory = function(text) {
         return text.replace(/pi/g, "\u03c0") + " =";
       };
 
-      var appendDiv = function (div) {
+      var appendDiv = function(div) {
         output.append(div);
         output.scrollTop(output[0].scrollHeight);
       };
 
-      var insertPrevAnswer = function () {
+      var insertPrevAnswer = function() {
         var outdiv;
         if (prevAnswer !== undefined) {
           outdiv = $("<div>").addClass("output").text(prevAnswer);
@@ -1719,7 +1721,7 @@ define(function (require) {
         }
       };
 
-      var evaluate = function () {
+      var evaluate = function() {
         var instr = input.val();
         var indiv, output, outstr;
         var isError = false;
@@ -1773,15 +1775,15 @@ define(function (require) {
         input.val(newInputVal);
       };
 
-      var selected = function (text) {
+      var selected = function(text) {
         return "<span class='selected-anglemode'>" + text + "</span>";
       };
 
-      var unselected = function (text) {
+      var unselected = function(text) {
         return "<span class='unselected-anglemode'>" + text + "</span>";
       };
 
-      var updateAngleMode = function () {
+      var updateAngleMode = function() {
         // I18N: "DEGrees" calculator button (3 chars or less)
         var deg = $._("DEG");
         // I18N: "RADians" calculator button (3 chars or less)
@@ -1804,7 +1806,7 @@ define(function (require) {
       var UP = 38;
       var DOWN = 40;
       var keysToCancel = [LEFT, RIGHT];
-      input.on("keydown", function (e) {
+      input.on("keydown", function(e) {
         if (_.contains(keysToCancel, e.keyCode)) {
           containsAns = false;
         }
@@ -1836,7 +1838,7 @@ define(function (require) {
         }
       });
 
-      var insertText = function (inputtedChar) {
+      var insertText = function(inputtedChar) {
         var shouldOverwriteAns = !_.contains(ansChars, inputtedChar) &&
           containsAns;
 
@@ -1850,7 +1852,7 @@ define(function (require) {
         });
       };
 
-      history.on("click", function (e) {
+      history.on("click", function(e) {
         input.focus();
       });
 
@@ -1858,7 +1860,7 @@ define(function (require) {
       // surrounding form submit... (http://stackoverflow.com/a/587575)
       var ENTER = 13;
       var EQUALS = 61;
-      input.on("keypress", function (e) {
+      input.on("keypress", function(e) {
         if (e.which === ENTER || e.which === EQUALS) {
           evaluate();
           return false;
@@ -1866,11 +1868,11 @@ define(function (require) {
         insertText(String.fromCharCode(e.charCode));
       });
 
-      input.on("click", function (e) {
+      input.on("click", function(e) {
         containsAns = false;
       });
 
-      buttons.on("click", function () {
+      buttons.on("click", function() {
         var jel = $(this),
           behavior = jel.data("behavior");
 
@@ -1910,7 +1912,7 @@ define(function (require) {
         return false;
       });
 
-      $(Exercises).on("gotoNextProblem", function () {
+      $(Exercises).on("gotoNextProblem", function() {
         input.val("");
         output.children().not(inputRow).remove();
       });
@@ -1924,7 +1926,7 @@ define(function (require) {
     require(["./genfiles/calculator.js"], initializeCalculator);
     Khan.initReportIssueLink("#extras .report-issue-link");
 
-    $("#answer_area").delegate("input.button, select", "keydown", function (e) {
+    $("#answer_area").delegate("input.button, select", "keydown", function(e) {
       // Don't want to go back to exercise dashboard; just do nothing on backspace
       if (e.keyCode === 8) {
         return false;
@@ -1942,7 +1944,7 @@ define(function (require) {
     }
 
     $(Khan)
-      .bind("updateUserExercise", function (ev, data) {
+      .bind("updateUserExercise", function(ev, data) {
         // TODO(alpert): Why isn't this in setUserExercise?
         // Any time we update userExercise, check if we're
         // setting/switching usernames
@@ -1953,7 +1955,7 @@ define(function (require) {
         }
       });
 
-    $(Khan).bind("gotoNextProblem", function () {
+    $(Khan).bind("gotoNextProblem", function() {
       if (localMode) {
         // Automatically advance to the next problem
         nextProblem(1);
@@ -1971,25 +1973,25 @@ define(function (require) {
     // site, that's immediately upon execution
     $(Khan)
       .bind("problemTemplateRendered", prepareSite)
-      .bind("readyForNextProblem", function (ev, data) {
+      .bind("readyForNextProblem", function(ev, data) {
         renderNextProblem(data);
       })
-      .bind("upcomingExercise", function (ev, data) {
+      .bind("upcomingExercise", function(ev, data) {
         var userExercise = data.userExercise;
         loadExercise(
           userExercise.exercise,
           userExercise.exerciseModel.fileName);
       })
-      .bind("showHint", function () {
+      .bind("showHint", function() {
         showHint();
         $(Exercises).trigger("hintShown", {
           card: Exercises.currentCard
         });
       })
-      .bind("refocusSolutionInput", function () {
+      .bind("refocusSolutionInput", function() {
         // Refocus text field so user can type a new answer
         if (lastFocusedSolutionInput != null) {
-          setTimeout(function () {
+          setTimeout(function() {
             var focusInput = $(lastFocusedSolutionInput);
 
             if (!focusInput.is(":disabled")) {
@@ -2004,7 +2006,7 @@ define(function (require) {
         }
       });
     $(Exercises)
-      .bind("newProblem", function () {
+      .bind("newProblem", function() {
         renderDebugInfo();
         if (typeof config == 'undefined') {
           return;
@@ -2111,7 +2113,7 @@ define(function (require) {
     debugLog("loadExercise start " + fileName);
     // Packing occurs on the server but at the same "exercises/" URL
     // $.get(urlBase + "exercises/" + fileName).done(function(data) {
-    $.get(exerciesPath + fileName).done(function (data) {
+    $.get(exerciesPath + fileName).done(function(data) {
       debugLog("loadExercise got " + fileName);
 
       // Get rid of any external scripts in data before we shove data
@@ -2141,7 +2143,7 @@ define(function (require) {
         requires = [];
       }
 
-      $.each(requires.concat(Khan.getBaseModules()), function (i, mod) {
+      $.each(requires.concat(Khan.getBaseModules()), function(i, mod) {
         debugLog("loadExercise submod " + (mod.src || mod));
         subpromises.push(loadModule(mod));
       });
@@ -2161,7 +2163,7 @@ define(function (require) {
         style: /<style[^>]*>([\s\S]*?)<\/style>/gi
       };
 
-      $.each(tagsToExtract, function (tag, regex) {
+      $.each(tagsToExtract, function(tag, regex) {
         var result = [];
         while ((match = regex.exec(data)) != null) {
           result.push(match[1]);
@@ -2171,17 +2173,17 @@ define(function (require) {
       });
 
       // Wait for any modules to load, then resolve the promise
-      $.when.apply($, subpromises).then(function () {
+      $.when.apply($, subpromises).then(function() {
         // Success; all modules loaded
         debugLog("loadExercise finish " + fileName);
         promise.resolve();
-      }, function () {
+      }, function() {
         // Failure; some modules failed to load
         // TODO(alpert): Find a useful error message
         debugLog("loadExercise subfail " + fileName);
         promise.reject();
       });
-    }).fail(function (xhr, status) {
+    }).fail(function(xhr, status) {
       debugLog("loadExercise err " + xhr.status + " " + fileName);
       Khan.warnTimeout();
     });
@@ -2200,7 +2202,7 @@ define(function (require) {
     debugLog("loadModule mod " + moduleName);
 
     // Load the module
-    require(["./utils/" + moduleName + ".js"], function () {
+    require(["./utils/" + moduleName + ".js"], function() {
       selfPromise.resolve();
     });
 
@@ -2220,14 +2222,14 @@ define(function (require) {
     script.async = "async";
     script.src = url;
 
-    script.onerror = function () {
+    script.onerror = function() {
       // No error in IE, but this is mostly for debugging during
       // development so it's probably okay
       // http://stackoverflow.com/questions/2027849/how-to-trigger-script-onerror-in-internet-explorer
       Khan.error("Error loading script " + script.src);
     };
 
-    script.onload = script.onreadystatechange = function () {
+    script.onload = script.onreadystatechange = function() {
       if (!script.readyState ||
         (/loaded|complete/).test(script.readyState)) {
         debugLog("loadScript loaded " + url);
@@ -2271,12 +2273,12 @@ define(function (require) {
 
   function loadLocalModeSite() {
     // TODO(alpert): Is the DOM really not yet ready?
-    $(function () {
+    $(function() {
       // Inject the site markup
       if (localMode) {
-        $.get(urlBase + "exercises/khan-site.html", function (site) {
+        $.get(urlBase + "exercises/khan-site.html", function(site) {
           $.get(urlBase + "exercises/khan-exercise.html",
-            function (ex) {
+            function(ex) {
               injectLocalModeSite(site, ex);
             });
         });

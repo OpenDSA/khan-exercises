@@ -1,28 +1,25 @@
 require.config({
 	packages: [{
-		// name: "codemirror",
 		name: "jsav",
-		// location: "/lib/CodeMirror-5.5.0/",
-		location: "/JSAV/",
-		// main: "lib/codemirror"
+		location: "/JSAV",
 		main: "build/JSAV-min"
 	}]
 });
 
-require(["jsav"], function () {
-	// console.dir(JSAV);
-	// window.JSAV = JSAV;
-	// $.extend(KhanUtil, {
-	// 	CodeMirror: CodeMirror
-	// });
-	// window.editor = CodeMirror.fromTextArea(code, {
-	// 	lineNumbers: true,
-	// 	mode: "text/x-java"
-	// });
-	// console.log("in CodeMIrror function");
-	// alert("in CodeMIrror function");
-	// var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-	// 	lineNumbers: true,
-	// 	mode: "text/x-java",
-	// });
+require([
+	"../../JSAV/lib/jquery.transit",
+	"../../JSAV/lib/raphael"
+], function() {
+	require(["jsav"], function() {
+		loadCss("../../JSAV/css/JSAV.css");
+		loadCss("../../lib/odsaStyle-min.css");
+
+		function loadCss(url) {
+			var link = document.createElement("link");
+			link.type = "text/css";
+			link.rel = "stylesheet";
+			link.href = url;
+			document.getElementsByTagName("head")[0].appendChild(link);
+		}
+	})
 });
