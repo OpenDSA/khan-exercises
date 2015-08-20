@@ -4140,7 +4140,7 @@ h1 {
 }
 .main-headline,
 .section-headline {
-  padding-top: 22px;
+  padding-top: 5px;
 }
 .main-headline a,
 .section-headline a {
@@ -10349,7 +10349,7 @@ body.lang-use-rtl #top-header-container .sitewide-navigation ul.topic-browser-me
  * click on the headings to scroll + reveal the rest of the footer
  */
 .push {
-  height: 28px;
+  height: 0px;
 }
 footer {
   background-color: #fdfdfd;
