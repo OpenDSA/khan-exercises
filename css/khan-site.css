@@ -11994,7 +11994,7 @@ footer .nowrap {
   box-sizing: border-box;
 }
 .exercises-card {
-  width: 86%;
+  width: 100%;
 }
 .exercises-card.full-width {
   width: 98%;

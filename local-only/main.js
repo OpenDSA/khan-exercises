@@ -11,10 +11,7 @@ requirejs([
     "/khan-exercises/local-only/jed.js",
     "/khan-exercises/local-only/localeplanet/icu." + getLang() + ".js",
     "/khan-exercises/local-only/moment.js"
-], function ($, katex) {
-    // Only 'jquery' and 'katex' have amd wrappers (and jQuery sets the global
-    // regardless); the other files export globally directly and we don't use
-    // their return values
+], function($, katex) {
     window.katex = katex;
 
     // These scripts depend on jQuery or underscore, so we wait to load them
@@ -25,13 +22,14 @@ requirejs([
         "/khan-exercises/local-only/jquery.qtip.js",
         "/khan-exercises/local-only/kas.js",
         "/khan-exercises/local-only/i18n.js"
-    ], function () {
+    ], function() {
         requirejs([
             "/khan-exercises/history.js",
-            "/khan-exercises/interface.js",
-        ], function () {
-            requirejs(["/khan-exercises/khan-exercise.js"], function () {
-                Khan.loadLocalModeSiteWhenReady();
+            "/khan-exercises/interface.js"
+        ], function() {
+            requirejs(["/khan-exercises/khan-exercise.js"], function() {
+                // Khan.loadLocalModeSiteWhenReady();
+                Khan.loadOpenDSAExercises();
             });
         });
     });
