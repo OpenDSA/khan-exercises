@@ -1,25 +1,19 @@
-require.config({
-	packages: [{
-		name: "jsav",
-		location: "/JSAV",
-		main: "build/JSAV-min"
-	}]
-});
+define(function(require) {
+	require([
+		"../../JSAV/lib/jquery.transit",
+		"../../JSAV/lib/raphael"
+	], function() {
+		require(["jsav"], function() {
+			loadCss("../../JSAV/css/JSAV.css");
+			loadCss("../../lib/odsaStyle-min.css");
 
-require([
-	"../../JSAV/lib/jquery.transit",
-	"../../JSAV/lib/raphael"
-], function() {
-	require(["jsav"], function() {
-		loadCss("../../JSAV/css/JSAV.css");
-		loadCss("../../lib/odsaStyle-min.css");
-
-		function loadCss(url) {
-			var link = document.createElement("link");
-			link.type = "text/css";
-			link.rel = "stylesheet";
-			link.href = url;
-			document.getElementsByTagName("head")[0].appendChild(link);
-		}
-	})
+			function loadCss(url) {
+				var link = document.createElement("link");
+				link.type = "text/css";
+				link.rel = "stylesheet";
+				link.href = url;
+				document.getElementsByTagName("head")[0].appendChild(link);
+			}
+		})
+	});
 });
