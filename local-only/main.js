@@ -1,7 +1,16 @@
 requirejs.config({
     paths: {
         "jquery": "/khan-exercises/local-only/jquery",
-    }
+    },
+    packages: [{
+        name: "codemirror",
+        location: "/lib/CodeMirror-5.5.0/",
+        main: "lib/codemirror"
+    }, {
+        name: "jsav",
+        location: "/JSAV",
+        main: "build/JSAV-min"
+    }]
 });
 
 requirejs([

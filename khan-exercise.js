@@ -346,7 +346,6 @@ define(function(require) {
 
     loadLocalModeSiteWhenReady: function() {
       initialModulesPromise.then(function() {
-        Khan.exercises = exercises;
         loadLocalModeSite();
       });
     },
@@ -942,8 +941,10 @@ define(function(require) {
       // already get tagged with the current, original data-name.
       $("div.exercise").not("[data-name]").data("name", currentExerciseId);
 
+
       // All remote exercises (if any) have now been loaded
       $.when.apply($, promises).then(function() {
+        // console.dir(window.CodeMirror);
         // All modules have now been loaded
         initialModulesPromise.resolve();
       });
@@ -2006,32 +2007,17 @@ define(function(require) {
         }
       });
     $(Exercises)
+      .bind("newProblem", renderDebugInfo)
+      .bind("newProblem", renderExerciseBrowserPreview)
       .bind("newProblem", function() {
-        renderDebugInfo();
-        if (typeof config == 'undefined') {
-          return;
-        }
-
-        var OpenPopKa, codeMirrorReadOnly;
-        if (currentExerciseId.indexOf("Summ") == -1) {
-          OpenPopKa = config.OpenPopKa || false;
-          codeMirrorReadOnly = config.codeMirrorReadOnly || false;
-        } else {
-          OpenPopKa = config[currentProblemType] ? config[currentProblemType].OpenPopKa || false : false;
-          codeMirrorReadOnly = config[currentProblemType] ? config[currentProblemType].codeMirrorReadOnly || false : false;
-        }
-
-        // var OpenPopKa = config[currentProblemType].OpenPopKa || false;
-        // create CodeMirror editor in when problem is OpenPop
-        if (typeof OpenPopKa != 'undefined' && OpenPopKa === true) {
-          var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        if (typeof CodeMirror !== 'undefined' && document.getElementById("codeTextarea") !== null) {
+          window.editor = CodeMirror.fromTextArea(document.getElementById("codeTextarea"), {
             lineNumbers: true,
-            readOnly: codeMirrorReadOnly,
+            readOnly: (typeof codeMirrorReadOnly !== "undefined") ? codeMirrorReadOnly || false : false,
             mode: "text/x-java",
           });
         }
-      })
-      .bind("newProblem", renderExerciseBrowserPreview);
+      });
   }
 
   function deslugify(name) {
@@ -2201,10 +2187,39 @@ define(function(require) {
     }
     debugLog("loadModule mod " + moduleName);
 
-    // Load the module
-    require(["./utils/" + moduleName + ".js"], function() {
-      selfPromise.resolve();
-    });
+    function loadCss(url) {
+      var link = document.createElement("link");
+      link.type = "text/css";
+      link.rel = "stylesheet";
+      link.href = url;
+      document.getElementsByTagName("head")[0].appendChild(link);
+    }
+
+    if (moduleName === 'codemirror') {
+      require(["codemirror",
+        "codemirror/mode/clike/clike"
+      ], function(CodeMirror) {
+        window.CodeMirror = CodeMirror;
+        loadCss("../../lib/CodeMirror-5.5.0/lib/codemirror.css");
+        selfPromise.resolve();
+      });
+    } else if (moduleName === 'jsav') {
+      require([
+        "../../../JSAV/lib/jquery.transit.js",
+        "../../../JSAV/lib/raphael.js"
+      ], function() {
+        require(["jsav"], function() {
+          loadCss("../../JSAV/css/JSAV.css");
+          loadCss("../../lib/odsaStyle-min.css");
+          selfPromise.resolve();
+        })
+      });
+    } else {
+      // Load the module
+      require(["./utils/" + moduleName + ".js"], function() {
+        selfPromise.resolve();
+      });
+    }
 
     modulePromises[moduleName] = selfPromise;
     return selfPromise;
