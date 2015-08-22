@@ -329,11 +329,16 @@ define(function(require) {
           // add problems in each file to the new exercise div
           remoteExercises.each(function(index) {
             var exerciseId = $(this).data("name");
+            var weight = $(this).data("weight");
+
             var vars = $(exercises[index]).children(".vars");
             var problem = $(exercises[index]).children(".problems").children("div[id]").children();
 
-            var $newProblem = $("<div>");
-            $newProblem.attr("id", exerciseId).append(vars).append(problem);
+            var $newProblem = $("<div>").attr("id", exerciseId);
+            if (weight) {
+              $newProblem.attr("data-weight", weight)
+            }
+            $newProblem.append(vars).append(problem);
             $newExercise.children(".problems").append($newProblem);
             // console.dir($newExercise);
           });
