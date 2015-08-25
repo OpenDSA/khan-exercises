@@ -2136,7 +2136,7 @@ define(function(require) {
 
       $.each(requires.concat(Khan.getBaseModules()), function(i, mod) {
         debugLog("loadExercise submod " + (mod.src || mod));
-        subpromises.push(loadModule(mod));
+        subpromises.push(loadModule(mod, exerciseId));
       });
 
       // Store the module requirements in exerciseModulesMap
@@ -2182,7 +2182,8 @@ define(function(require) {
     return promise;
   }
 
-  function loadModule(moduleName) {
+  function loadModule(moduleName, exerciseId) {
+    exerciseId = exerciseId || null;
     // Return the promise if it exists already
     var selfPromise = modulePromises[moduleName];
     if (selfPromise) {
@@ -2199,6 +2200,10 @@ define(function(require) {
       link.href = url;
       document.getElementsByTagName("head")[0].appendChild(link);
     }
+
+    var path = (moduleName === currentExerciseId) ? exerciesPath : "./utils/";
+
+    console.log(path + " " + moduleName + " " + currentExerciseId + " " + exerciseId);
 
     if (moduleName === 'codemirror') {
       require(["codemirror",
@@ -2221,7 +2226,7 @@ define(function(require) {
       });
     } else {
       // Load the module
-      require(["./utils/" + moduleName + ".js"], function() {
+      require([path + moduleName + ".js"], function() {
         selfPromise.resolve();
       });
     }
