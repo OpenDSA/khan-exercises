@@ -1,6 +1,6 @@
 requirejs.config({
     paths: {
-        "jquery": "/khan-exercises/local-only/jquery",
+        "jquery": "../../khan-exercises/local-only/jquery",
     },
     packages: [{
         name: "codemirror",
@@ -15,28 +15,28 @@ requirejs.config({
 
 requirejs([
     "jquery",
-    "/khan-exercises/local-only/katex/katex.js",
-    "/khan-exercises/local-only/underscore.js",
-    "/khan-exercises/local-only/jed.js",
-    "/khan-exercises/local-only/localeplanet/icu." + getLang() + ".js",
-    "/khan-exercises/local-only/moment.js"
-], function($, katex) {
+    "../../khan-exercises/local-only/katex/katex.js",
+    "../../khan-exercises/local-only/underscore.js",
+    "../../khan-exercises/local-only/jed.js",
+    "../../khan-exercises/local-only/localeplanet/icu." + getLang() + ".js",
+    "../../khan-exercises/local-only/moment.js"
+], function ($, katex) {
     window.katex = katex;
 
     // These scripts depend on jQuery or underscore, so we wait to load them
     requirejs([
-        "/khan-exercises/exercises-stub.js",
-        "/khan-exercises/local-only/jquery-migrate-1.1.1.js",
-        "/khan-exercises/local-only/jquery-ui.js",
-        "/khan-exercises/local-only/jquery.qtip.js",
-        "/khan-exercises/local-only/kas.js",
-        "/khan-exercises/local-only/i18n.js"
-    ], function() {
+        "../../khan-exercises/exercises-stub.js",
+        "../../khan-exercises/local-only/jquery-migrate-1.1.1.js",
+        "../../khan-exercises/local-only/jquery-ui.js",
+        "../../khan-exercises/local-only/jquery.qtip.js",
+        "../../khan-exercises/local-only/kas.js",
+        "../../khan-exercises/local-only/i18n.js"
+    ], function () {
         requirejs([
-            "/khan-exercises/history.js",
-            "/khan-exercises/interface.js"
-        ], function() {
-            requirejs(["/khan-exercises/khan-exercise.js"], function() {
+            "../../khan-exercises/history.js",
+            "../../khan-exercises/interface.js"
+        ], function () {
+            requirejs(["../../khan-exercises/khan-exercise.js"], function () {
                 // Khan.loadLocalModeSiteWhenReady();
                 Khan.loadOpenDSAExercises();
             });
