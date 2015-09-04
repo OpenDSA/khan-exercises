@@ -5,7 +5,7 @@
  * In general, khan-exercises and perseus will want to trigger events on
  * Exercises but only listen to their own events.
  */
-(function () {
+(function() {
 
     var ServerActionQueue = {
         LOCAL_STORAGE_KEY: "exercises-server-action-queue",
@@ -25,7 +25,7 @@
          * that we will have the same request sent twice because the pending
          * request is still in the queue.
          */
-        initialize: function () {
+        initialize: function() {
             this.queue = LocalStore.get(this.LOCAL_STORAGE_KEY);
             if (this.queue === null) {
                 this.queue = [];
@@ -39,7 +39,7 @@
          * Attempts to send requests, if all the requests are sent then don't
          * reset the timeout. Otherwise reset the timeout.
          */
-        onTimeout: function () {
+        onTimeout: function() {
             this.timeoutSet = false;
             this.consumeQueue();
         },
@@ -49,7 +49,7 @@
          *
          * @returns {object} The next action from the queue.
          */
-        dequeue: function () {
+        dequeue: function() {
             var output = this.queue.shift();
             LocalStore.set(this.LOCAL_STORAGE_KEY, this.queue);
             return output;
@@ -58,7 +58,7 @@
         /**
          * Arm the timeout and increment the timeoutMultiplier
          */
-        armTimeout: function () {
+        armTimeout: function() {
             if (!this.timeoutSet) {
                 this.timeoutSet = true;
                 setTimeout(_.bind(this.onTimeout, this),
@@ -74,7 +74,7 @@
          * pending server actions. Otherwise, this will reset the timeout to be called
          * again later.
          */
-        consumeQueue: function () {
+        consumeQueue: function() {
             if (this.queue.length === 0) {
                 return;
             }
@@ -82,12 +82,12 @@
             var action = ServerActionEnum[this.peek().action];
             var actionArgs = this.peek().actionArgs;
             var retriesLeft = this.peek().retriesLeft;
-            action.apply(null, actionArgs).done(function () {
+            action.apply(null, actionArgs).done(function() {
                 // We succeeded so remove this from the queue and reset timeoutMultiplier
                 ServerActionQueue.timeoutMultiplier = 1;
                 ServerActionQueue.dequeue();
                 ServerActionQueue.consumeQueue();
-            }).fail(function (xhr) {
+            }).fail(function(xhr) {
                 // When we aren't connected to the sesrver we don't get a proper response
                 // so responseText is undefined
                 if (xhr.status === 0) {
@@ -111,7 +111,7 @@
         /**
          * Returns next item from queue without removing it.
          */
-        peek: function () {
+        peek: function() {
             return this.queue[0];
         },
 
@@ -125,7 +125,7 @@
          *               JSON serializable.
          * @param {int} retries - Number of retries allowed for server errors
          */
-        enqueue: function (action, actionArgs, retries) {
+        enqueue: function(action, actionArgs, retries) {
             this.queue.push({
                 action: action,
                 actionArgs: actionArgs,
@@ -150,7 +150,7 @@
 
     function saveAttemptToServer(url, attemptData) {
         // Save the problem results to the server
-        var promise = request(url, attemptData).fail(function (xhr) {
+        var promise = request(url, attemptData).fail(function(xhr) {
             // Alert any listeners of the error before reload
             $(Exercises).trigger("attemptError");
 
@@ -233,7 +233,7 @@
     _.defaults(Exercises, {
         khanExercisesUrlBase: "../../khan-exercises/",
 
-        getCurrentFramework: function (userExerciseOverride) {
+        getCurrentFramework: function(userExerciseOverride) {
             return (userExerciseOverride || userExercise).exerciseModel.fileName ?
                 "khan-exercises" : "perseus";
         },
@@ -248,7 +248,7 @@
 
     // The iOS app doesn't use cookies, so we need to send this as an oauth request
     // (while letting the webapp send its AJAX request as before).
-    $.kaOauthAjax = function (options) {
+    $.kaOauthAjax = function(options) {
         if ($.oauth) {
             return $.oauth(options);
         } else {
@@ -323,7 +323,7 @@
         $("#worked-example-button").click(onShowExampleClicked);
 
         // Next question button
-        $("#next-question-button").click(function () {
+        $("#next-question-button").click(function() {
             $(Exercises).trigger("gotoNextProblem");
 
             // Disable next question button until next time
@@ -334,18 +334,18 @@
         });
 
         // If happy face is clicked, pass click on through.
-        $("#positive-reinforcement").click(function () {
+        $("#positive-reinforcement").click(function() {
             $("#next-question-button").click();
         });
 
         // Let users close the warning bar when appropriate
-        $("#warning-bar-close a").click(function (e) {
+        $("#warning-bar-close a").click(function(e) {
             e.preventDefault();
             $("#warning-bar").fadeOut("slow");
         });
 
         // Scratchpad toggle
-        $("#scratchpad-show").click(function (e) {
+        $("#scratchpad-show").click(function(e) {
             e.preventDefault();
             Khan.scratchpad.toggle();
 
@@ -437,15 +437,15 @@
 
                 // Filter out related videos that correspond to other problem types
                 var problemTypes = data.userExercise.exerciseModel.problemTypes;
-                var otherProblemTypes = _.filter(problemTypes, function (type) {
+                var otherProblemTypes = _.filter(problemTypes, function(type) {
                     return type.name !== problemTypeName;
                 });
-                relatedVideos = _.filter(relatedVideos, function (video) {
-                    return _.all(otherProblemTypes, function (problemType) {
+                relatedVideos = _.filter(relatedVideos, function(video) {
+                    return _.all(otherProblemTypes, function(problemType) {
                         // Note: we have to cast IDs to strings for backwards
                         // compatability as older videos have pure integer IDs.
                         var stringIDs = _.map(problemType.relatedVideos,
-                            function (id) {
+                            function(id) {
                                 return "" + id;
                             });
                         return !_.contains(stringIDs, "" + video.id);
@@ -671,8 +671,7 @@
         var useMultithreadedModule = (!score.correct ||
             (Exercises.learningTask && !Exercises.learningTask.isComplete()));
 
-        var url = fullUrl(
-            "problems/" + problemNum + "/attempt", useMultithreadedModule);
+        var url = Khan.fullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
 
         // This needs to be after all updates to Exercises.currentCard (such as the
         // "problemDone" event) or it will send incorrect data to the server
@@ -699,7 +698,7 @@
             // Set a small timeout to give the browser a chance to show the
             // disabled check-answer button.  Otherwise in chrome it doesn't show
             // Please wait...
-            setTimeout(function () {
+            setTimeout(function() {
                 Exercises.AssessmentQueue.answered(score.correct);
             }, 10);
         }
@@ -874,14 +873,14 @@
 
     var inUnload = false;
 
-    $(window).on("beforeunload", function () {
+    $(window).on("beforeunload", function() {
         inUnload = true;
     });
 
     // If there are any requests left in the queue when the window unloads then we
     // will have permanently lost their answers and will need to clear the session
     // cache, to make sure we don't override what is passed down from the servers
-    $(window).unload(function () {
+    $(window).unload(function() {
         if (attemptOrHintQueue.queue().length) {
             $(Exercises).trigger("attemptError");
         }
@@ -942,11 +941,11 @@
 
         var deferred = $.Deferred();
 
-        attemptOrHintQueue.queue(function (next) {
+        attemptOrHintQueue.queue(function(next) {
             var requestEndedParameters;
 
             attemptOrHintQueueUrls.push(params.url);
-            $.kaOauthAjax(params).then(function (data, textStatus, jqXHR) {
+            $.kaOauthAjax(params).then(function(data, textStatus, jqXHR) {
                 // This line calls any callbacks registered with the promise
                 deferred.resolve(data, textStatus, jqXHR);
 
@@ -955,7 +954,7 @@
                     userExercise: data,
                     source: "serverResponse"
                 });
-            }, function (jqXHR, textStatus, errorThrown) {
+            }, function(jqXHR, textStatus, errorThrown) {
                 // Execute passed error function first in case it wants
                 // to log the request queue or something like that.
                 deferred.reject(jqXHR, textStatus, errorThrown);
@@ -973,7 +972,7 @@
                         errorThrown: errorThrown
                     }
                 };
-            }).always(function () {
+            }).always(function() {
                 var attemptedUrl = attemptOrHintQueueUrls.pop();
                 // Sanity check.  attemptedUrl will be undefined on send-error.
                 if (attemptedUrl && attemptedUrl !== params.url) {
@@ -1011,7 +1010,7 @@
     }
 
     function warning(e, message, showClose) {
-        $(function () {
+        $(function() {
             var warningBar = $("#warning-bar");
             $("#warning-bar-content").html(message);
             if (showClose) {
