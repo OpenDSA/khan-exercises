@@ -2201,9 +2201,9 @@ define(function(require) {
       document.getElementsByTagName("head")[0].appendChild(link);
     }
 
-    var path = ([Khan.currentExerciseId, exerciseId].indexOf(moduleName) > -1) ? exerciesPath : "./utils/";
-
-
+    var path = ([currentExerciseId, exerciseId].indexOf(moduleName) > -1) ? exerciesPath : "./utils/";
+    // var path = (moduleName === Khan.currentExerciseId) ? Khan.odsaExerciesPath : "../../khan-exercises/utils/";
+    // var path = ([currentExerciseId, exerciseId].indexOf(moduleName) > -1) ? Khan.odsaExerciesPath : "../../khan-exercises/utils/";
     // console.log(path + " " + moduleName + " " + currentExerciseId + " " + exerciseId);
 
     if (moduleName === 'codemirror') {
