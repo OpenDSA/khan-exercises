@@ -321,6 +321,7 @@ define(function(require) {
           // Remove all exercise elements
           $("div.exercise").detach();
 
+          console.dir($(exercises));
           // create new .exercise div
           var $newExercise = $("<div>").addClass("exercise").data("name", currentExerciseId)
             .append($("<div>").addClass("vars"))
@@ -1221,6 +1222,7 @@ define(function(require) {
 
     // ...and inline style tags.
     if (exercise.data("style")) {
+      console.log("inside the style");
       var exerciseStyleElem = $("#exercise-inline-style");
 
       // Clear old exercise style definitions
@@ -2122,7 +2124,7 @@ define(function(require) {
       });
 
       // Add the new exercise elements to the exercises DOM set
-      exercises = exercises.add(newContents);
+      // exercises = exercises.add(newContents);
 
       // Extract data-require
       var match = data.match(
@@ -2159,9 +2161,11 @@ define(function(require) {
         while ((match = regex.exec(data)) != null) {
           result.push(match[1]);
         }
-
         newContents.data(tag, result);
+        console.dir(newContents);
       });
+
+      exercises = exercises.add(newContents);
 
       // Wait for any modules to load, then resolve the promise
       $.when.apply($, subpromises).then(function() {
@@ -2198,7 +2202,8 @@ define(function(require) {
       link.type = "text/css";
       link.rel = "stylesheet";
       link.href = url;
-      document.getElementsByTagName("head")[0].appendChild(link);
+      var head = document.getElementsByTagName("head")[0];
+      head.insertBefore(link, head.firstChild);
     }
 
     var path = ([currentExerciseId, exerciseId].indexOf(moduleName) > -1) ? exerciesPath : "./utils/";
@@ -2220,8 +2225,8 @@ define(function(require) {
         "../../../JSAV/lib/raphael.js"
       ], function() {
         require(["jsav"], function() {
-          loadCss("../../JSAV/css/JSAV.css");
           loadCss("../../lib/odsaStyle-min.css");
+          loadCss("../../JSAV/css/JSAV.css");
           selfPromise.resolve();
         })
       });
