@@ -2218,7 +2218,6 @@ define(function(require) {
 
   function injectLocalModeSite(html, htmlExercise) {
     $("body").prepend(html);
-    // $("#container .exercises-header h2").append(document.title);
     $("#container .exercises-header span").eq(1).append(document.title);
     $("#container .exercises-body .current-card-contents").html(
       htmlExercise);
@@ -2230,7 +2229,7 @@ define(function(require) {
     $(Exercises).trigger("problemTemplateRendered");
 
     Khan.exercises = Khan.exercises.add($("div.exercise").detach());
-    // console.dir(exercises);
+
     Khan.tempdeff.resolve();
     // Generate the initial problem when dependencies are done being loaded
     makeProblem(currentExerciseId);
