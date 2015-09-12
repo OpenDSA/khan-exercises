@@ -435,7 +435,7 @@
     // was wrong (these are referred to as clues in code, though in
     // conversation we call them rationales). We show nothing at all if that
     // content doesn't exist.
-    if (score.message != null) {
+    if (score.message !== "" && score.message != null) {
       attemptMessage = score.message;
     } else if (isAnswerEmpty) {
       attemptMessage = EMPTY_MESSAGE;
