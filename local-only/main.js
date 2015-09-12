@@ -10,6 +10,10 @@ requirejs.config({
         name: "jsav",
         location: "../../JSAV",
         main: "build/JSAV-min"
+  }, {
+    name: "blockUI",
+    location: "../../lib",
+    main: "jquery.blockUI"
     }]
 });
 
@@ -37,8 +41,8 @@ requirejs([
             "../../khan-exercises/interface.js"
         ], function() {
             requirejs(["../../khan-exercises/khan-exercise.js"], function() {
-                // Khan.loadLocalModeSiteWhenReady();
-                Khan.loadOpenDSAExercises();
+        requirejs(["../../lib/odsaKA.js"], function() {
+          Khan.odsaLoadExercises();
             });
         });
     });

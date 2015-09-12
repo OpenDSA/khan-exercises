@@ -58,10 +58,6 @@
       shown in response, e.g. "We don't understand your answer."
 */
 define(function(require) {
-    // Modified by Hosam Shahin
-    // OpenDSA Exercises path
-    var exerciesPath = window.location.pathname;
-    exerciesPath = exerciesPath.substring(0, exerciesPath.lastIndexOf("/") + 1);
 
     var crc32 = require("./utils/crc32.js");
 
@@ -180,6 +176,11 @@ define(function(require) {
 
     // The main Khan Module
     var Khan = {
+    currentExerciseId: currentExerciseId,
+    onjQueryLoaded: onjQueryLoaded,
+    localMode: localMode,
+    loadExercise: loadExercise,
+    exercises: exercises,
 
         // Set of modules currently in use -- keys are module names, value is
         // always true
@@ -292,68 +293,6 @@ define(function(require) {
                     moduleSet[modNameOrObject.name] = true;
                 }
             }
-        },
-
-        // Added by Hosam Shahin
-        // TO load OpenDSA summary exercises and prepare exercise html DOM before
-        // handling it to KA framework
-        loadOpenDSAExercises: function() {
-            $(function() {
-                var promises = [];
-
-                // if OpenDSA exercise is not "Summ" then fire KA directly
-                if (currentExerciseId.indexOf("Summ") == -1) {
-                    return Khan.loadLocalModeSiteWhenReady();
-                }
-
-                var remoteExercises = $("div.exercise[data-name]");
-
-                remoteExercises.each(function() {
-                    var exerciseId = $(this).data("name");
-                    var fileName = exerciseId + ".html";
-                    promises.push(loadExercise(exerciseId, fileName));
-                });
-
-                // All remote exercises (if any) have now been loaded
-                $.when.apply($, promises).then(function() {
-                    // Prepare exercise html markup as if all summary exercises were inclused in one file
-
-                    // Remove all exercise elements
-                    $("div.exercise").detach();
-
-                    // create new .exercise div
-                    var $newExercise = $("<div>").addClass("exercise").data("name", currentExerciseId)
-                        .append($("<div>").addClass("vars"))
-                        .append($("<div>").addClass("problems"));
-
-                    // add problems in each file to the new exercise div
-                    remoteExercises.each(function(index) {
-                        if ($(exercises[index]).data("style")) {
-                            $.each($(exercises[index]).data("style"), function(i, styleContents) {
-                                var style = document.createElement("style");
-                                $(style).text(styleContents);
-                                document.getElementsByTagName("head")[0].appendChild(style);
-                            });
-                        }
-
-                        var exerciseId = $(this).data("name");
-                        var weight = $(this).data("weight");
-
-                        var vars = $(exercises[index]).children(".vars");
-                        var problem = $(exercises[index]).children(".problems").children("div[id]").children();
-
-                        var $newProblem = $("<div>").attr("id", exerciseId);
-                        if (weight) {
-                            $newProblem.attr("data-weight", weight)
-                        }
-                        $newProblem.append(vars).append(problem);
-                        $newExercise.children(".problems").append($newProblem);
-                    });
-
-                    $('body').prepend($newExercise);
-                    Khan.loadLocalModeSiteWhenReady();
-                });
-            });
         },
 
         loadLocalModeSiteWhenReady: function() {
@@ -916,13 +855,13 @@ define(function(require) {
         randomSeed = userCRC32 || (new Date().getTime() & 0xffffffff);
     }
 
-    onjQueryLoaded();
+  // onjQueryLoaded();
 
     function onjQueryLoaded() {
         initEvents();
 
         // Initialize to an empty jQuery set
-        exercises = $();
+    Khan.exercises = $();
 
         Khan.mathJaxLoaded = loadMathJax();
 
@@ -933,7 +872,8 @@ define(function(require) {
             // in the data-require on <html>
             var mods = Khan.getBaseModules();
             if (localMode) {
-                var modString = document.documentElement.getAttribute("data-require") || "";
+        var modString = document.documentElement.getAttribute(
+          "data-require") || "";
                 var exMods = modString.length ? modString.split(" ") : [];
 
                 Khan.exerciseModulesMap[currentExerciseId] = exMods;
@@ -941,7 +881,7 @@ define(function(require) {
             }
 
             $.each(mods, function(i, mod) {
-                promises.push(loadModule(mod));
+        promises.push(Khan.loadModule(mod));
             });
 
             promises.push(Khan.mathJaxLoaded);
@@ -954,7 +894,6 @@ define(function(require) {
             $("div.exercise").not("[data-name]").data("name", currentExerciseId);
 
 
-            // All remote exercises (if any) have now been loaded
             $.when.apply($, promises).then(function() {
                 // All modules have now been loaded
                 initialModulesPromise.resolve();
@@ -1102,7 +1041,7 @@ define(function(require) {
         }
 
         // problems contains the unprocessed contents of each problem type within exerciseId
-        var problems = exercises.filter(function() {
+    var problems = Khan.exercises.filter(function() {
             return $.data(this, "name") === exerciseId;
         }).children(".problems").children();
 
@@ -1571,7 +1510,7 @@ define(function(require) {
 
             links.append("<br><b>Problem types:</b><br>");
 
-            exercises.children(".problems").children().each(function(n, prob) {
+      Khan.exercises.children(".problems").children().each(function(n, prob) {
                 var probID = $(prob).attr("id") || "" + n;
                 links.append($("<div>")
                     .css({
@@ -1657,7 +1596,7 @@ define(function(require) {
 
             links.append($("<b>").text("Problem types:"));
 
-            exercises.children(".problems").children().each(function(n, prob) {
+      Khan.exercises.children(".problems").children().each(function(n, prob) {
                 var probName = $(prob).attr("id");
                 var probID = probName || n;
                 var weight = $(prob).data("weight");
@@ -2019,16 +1958,7 @@ define(function(require) {
             });
         $(Exercises)
             .bind("newProblem", renderDebugInfo)
-            .bind("newProblem", renderExerciseBrowserPreview)
-            .bind("newProblem", function() {
-                if (typeof CodeMirror !== 'undefined' && document.getElementById("codeTextarea") !== null) {
-                    window.editor = CodeMirror.fromTextArea(document.getElementById("codeTextarea"), {
-                        lineNumbers: true,
-                        readOnly: (typeof codeMirrorReadOnly !== "undefined") ? codeMirrorReadOnly || false : false,
-                        mode: "text/x-java",
-                    });
-                }
-            });
+      		.bind("newProblem", renderExerciseBrowserPreview);
     }
 
     function deslugify(name) {
@@ -2110,7 +2040,7 @@ define(function(require) {
         debugLog("loadExercise start " + fileName);
         // Packing occurs on the server but at the same "exercises/" URL
         // $.get(urlBase + "exercises/" + fileName).done(function(data) {
-        $.get(exerciesPath + fileName).done(function(data) {
+    $.get(Khan.odsaExerciesPath + fileName).done(function(data) {
             debugLog("loadExercise got " + fileName);
 
             // Get rid of any external scripts in data before we shove data
@@ -2128,7 +2058,7 @@ define(function(require) {
             });
 
             // Add the new exercise elements to the exercises DOM set
-            // exercises = exercises.add(newContents);
+      		//Khan.exercises = Khan.exercises.add(newContents);
 
             // Extract data-require
             var match = data.match(
@@ -2142,7 +2072,7 @@ define(function(require) {
 
             $.each(requires.concat(Khan.getBaseModules()), function(i, mod) {
                 debugLog("loadExercise submod " + (mod.src || mod));
-                subpromises.push(loadModule(mod, exerciseId));
+        		subpromises.push(Khan.loadModule(mod, exerciseId));
             });
 
             // Store the module requirements in exerciseModulesMap
@@ -2165,11 +2095,11 @@ define(function(require) {
                 while ((match = regex.exec(data)) != null) {
                     result.push(match[1]);
                 }
+
                 newContents.data(tag, result);
             });
 
-            exercises = exercises.add(newContents);
-
+            Khan.exercises = Khan.exercises.add(newContents);
             // Wait for any modules to load, then resolve the promise
             $.when.apply($, subpromises).then(function() {
                 // Success; all modules loaded
@@ -2187,58 +2117,6 @@ define(function(require) {
         });
 
         return promise;
-    }
-
-    function loadModule(moduleName, exerciseId) {
-        exerciseId = exerciseId || null;
-        // Return the promise if it exists already
-        var selfPromise = modulePromises[moduleName];
-        if (selfPromise) {
-            return selfPromise;
-        } else {
-            selfPromise = $.Deferred();
-        }
-        debugLog("loadModule mod " + moduleName);
-
-        function loadCss(url) {
-            var link = document.createElement("link");
-            link.type = "text/css";
-            link.rel = "stylesheet";
-            link.href = url;
-            var head = document.getElementsByTagName("head")[0];
-            head.insertBefore(link, head.firstChild);
-        }
-
-        var path = ([currentExerciseId, exerciseId].indexOf(moduleName) > -1) ? exerciesPath : "./utils/";
-
-        if (moduleName === 'codemirror') {
-            require(["codemirror",
-                "codemirror/mode/clike/clike"
-            ], function(CodeMirror) {
-                window.CodeMirror = CodeMirror;
-                loadCss("../../lib/CodeMirror-5.5.0/lib/codemirror.css");
-                selfPromise.resolve();
-            });
-        } else if (moduleName === 'jsav') {
-            require([
-                "../../../JSAV/lib/jquery.transit.js",
-                "../../../JSAV/lib/raphael.js"
-            ], function() {
-                require(["jsav"], function() {
-                    loadCss("../../lib/odsaStyle-min.css");
-                    loadCss("../../JSAV/css/JSAV.css");
-                    selfPromise.resolve();
-                })
-            });
-        } else {
-            // Load the module
-            require([path + moduleName + ".js"], function() {
-                selfPromise.resolve();
-            });
-        }
-
-        modulePromises[moduleName] = selfPromise;
-        return selfPromise;
     }
 
     // Load a script by URL, then execute callback
@@ -2319,7 +2197,7 @@ define(function(require) {
 
     function injectLocalModeSite(html, htmlExercise) {
         $("body").prepend(html);
-        $("#container .exercises-header h2").append(document.title);
+    $("#container .exercises-header span").eq(1).append(document.title);
         $("#container .exercises-body .current-card-contents").html(
             htmlExercise);
 
@@ -2329,7 +2207,9 @@ define(function(require) {
 
         $(Exercises).trigger("problemTemplateRendered");
 
-        exercises = exercises.add($("div.exercise").detach());
+    Khan.exercises = Khan.exercises.add($("div.exercise").detach());
+
+    Khan.tempdeff.resolve();
         // Generate the initial problem when dependencies are done being loaded
         makeProblem(currentExerciseId);
     }
