@@ -52,4 +52,4 @@ requirejs([
 function getLang() {
   var match = /[?&]lang=([^&]+)/.exec(window.location.search);
   return match ? match[1] : "en-US";
-}
+};
