@@ -731,10 +731,10 @@
     }
   }
 
-  var inUnload = false;
+  Khan.inUnload = false;
 
   $(window).on("beforeunload", function() {
-    inUnload = true;
+    Khan.inUnload = true;
   });
 
   // If there are any requests left in the queue when the window unloads then we
