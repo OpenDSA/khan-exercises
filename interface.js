@@ -444,6 +444,10 @@
     // We need to alert the user when the given answer is incorrect
     if (!attemptMessage && !(score.correct || skipped)) {
       attemptMessage = $._("Incorrect answer, please try again.");
+
+      //Q flag when the question is incorrect
+      Khan.flip =0;
+
     }
 
     var $attemptMessage = $("#check-answer-results > p");
@@ -525,6 +529,10 @@
         nextButtonText = $._("Awesome! Show points...");
       } else {
         nextButtonText = $._("Correct! Next question...");
+
+        //Q flag when the question is correct
+        Khan.flip =1;
+
       }
 
       $("#next-question-button")

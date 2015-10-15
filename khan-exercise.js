@@ -89,7 +89,7 @@ define(function(require) {
     bins = 200,
 
     // Number of past problems to consider when avoiding duplicates
-    dupWindowSize = 5,
+    dupWindowSize = 10,
 
     // The seed information
     randomSeed,
@@ -1061,19 +1061,80 @@ define(function(require) {
 
       // Otherwise create a random problem from weights
     } else {
-      var typeIndex = [];
+
+      //Initialize exercise questin array (Q)
+      Khan.typeIndex = [];
+
+
+      if (Khan.flip == 1)
+      {
+
+        if (Khan.corrects.length==0)
+          {Khan.corrects.push(Khan.typeNum);}
+
+        else
+          {
+            for (var i = 0; i < Khan.corrects.length; i++)
+            {
+                Khan.ex = 0;
+
+                if (Khan.corrects[i] === Khan.typeNum)
+                {
+                  Khan.ex = 1;
+                }
+
+            }
+
+
+           if (Khan.ex===0)
+            {
+              Khan.corrects.push(Khan.typeNum);
+            }
+
+          }
+
+
+      }
+
+    else
+    {Khan.corrects = [];
+     Khan.cweight = [];
+    }
+
+      //Retrieve weight value per each question (Q)
       $.each(problems, function(index) {
         if ($(this).data("weight") === 0) {
           return;
         }
-        var weight = $(this).data("weight") || 1;
-        _.times(weight, function() {
-          typeIndex.push(index);
+
+        //Add equestions to typeIndex based on their weight (Q)
+        // var weight = $(this).data("weight") || 1;
+        Khan.weight = $(this).data("weight") || 1;
+
+        Khan.cweight[index]=Khan.weight;
+
+        for (var i = 0; i < Khan.corrects.length; i++)
+        {
+            Khan.sh = index;
+
+            if (Khan.corrects[i] === Khan.sh)
+            {
+              Khan.weight = Khan.cweight[index]*0.1;
+              Khan.weight = Math.ceil (Khan.weight);
+              Khan.cweight[index]=Khan.weight;
+            }
+
+        }
+
+        _.times(Khan.weight, function() {
+          Khan.typeIndex.push(index);
         });
       });
-      var typeNum = typeIndex[Math.floor(KhanUtil.random() * typeIndex.length)];
-      problem = problems.eq(typeNum);
-      currentProblemType = $(problem).attr("id") || "" + typeNum;
+
+      Khan.typeNum = Khan.typeIndex[Math.floor(KhanUtil.random() * Khan.typeIndex.length)];
+      problem = problems.eq(Khan.typeNum);
+      currentProblemType = $(problem).attr("id") || "" + Khan.typeNum;
+
     }
 
     // TODO(brianmerlob): If we still don't have a problem then it's time to fail as gracefully
@@ -2213,4 +2274,8 @@ define(function(require) {
     // Generate the initial problem when dependencies are done being loaded
     makeProblem(currentExerciseId);
   }
+
+
+
+
 });
