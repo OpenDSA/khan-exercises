@@ -1065,34 +1065,25 @@ define(function(require) {
       //Initialize exercise questin array (Q)
       Khan.typeIndex = [];
 
-
       if (Khan.flip == 1)
       {
 
         if (Khan.corrects.length==0)
-          {Khan.corrects.push(Khan.typeNum);}
+          {
+            Khan.corrects.push(Khan.typeNum);
+          }
 
         else
           {
-            for (var i = 0; i < Khan.corrects.length; i++)
-            {
-                Khan.ex = 0;
 
-                if (Khan.corrects[i] === Khan.typeNum)
-                {
-                  Khan.ex = 1;
-                }
+            if (Khan.corrects.indexOf(Khan.typeNum)>=0)
+            {
 
             }
-
-
-           if (Khan.ex===0)
-            {
-              Khan.corrects.push(Khan.typeNum);
+            else {
+                 Khan.corrects.push(Khan.typeNum);
             }
-
           }
-
 
       }
 
@@ -1101,12 +1092,14 @@ define(function(require) {
      Khan.cweight = [];
     }
 
+
       //Retrieve weight value per each question (Q)
       $.each(problems, function(index) {
         if ($(this).data("weight") === 0) {
           return;
         }
 
+        Khan.answer=Khan.corrects.toString();
         //Add equestions to typeIndex based on their weight (Q)
         // var weight = $(this).data("weight") || 1;
         Khan.weight = $(this).data("weight") || 1;
