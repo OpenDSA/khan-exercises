@@ -383,12 +383,13 @@
       }
     }
 
-    var useMultithreadedModule = ((Exercises.learningTask && !Exercises.learningTask.isComplete()));
-    var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
+    // This part is rolled back temporarily
+    // var useMultithreadedModule = ((Exercises.learningTask && !Exercises.learningTask.isComplete()));
+    // var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
 
-    var attemptData = Khan.buildAttemptData(0, 0, 0,
-      0, 0, 0);
-      Khan.saveAttemptToServer(url, attemptData);
+    // var attemptData = Khan.buildAttemptData(0, 0, 0,
+    //   0, 0, 0);
+    // Khan.saveAttemptToServer(url, attemptData);
 
   }
 
@@ -454,7 +455,7 @@
       attemptMessage = $._("Incorrect answer, please try again.");
 
       //Q flag when the question is incorrect
-      Khan.flip =0;
+      Khan.flip = 0;
 
     }
 
@@ -539,7 +540,7 @@
         nextButtonText = $._("Correct! Next question...");
 
         //Q flag when the question is correct
-        Khan.flip =1;
+        Khan.flip = 1;
 
       }
 
