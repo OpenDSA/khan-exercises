@@ -383,13 +383,15 @@
       }
     }
 
-    // This part is rolled back temporarily
-    // var useMultithreadedModule = ((Exercises.learningTask && !Exercises.learningTask.isComplete()));
-    // var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
+    if (Khan.typeIndex.length>1)
+      {
+        var useMultithreadedModule = ((Exercises.learningTask && !Exercises.learningTask.isComplete()));
+        var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
 
-    // var attemptData = Khan.buildAttemptData(0, 0, 0,
-    //   0, 0, 0);
-    // Khan.saveAttemptToServer(url, attemptData);
+        var attemptData = Khan.buildAttemptData(0, 0, 0,
+          0, 0, 0);
+          Khan.saveAttemptToServer(url, attemptData);
+    }
 
   }
 
