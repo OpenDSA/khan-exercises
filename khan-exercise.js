@@ -181,6 +181,7 @@ define(function(require) {
     localMode: localMode,
     loadExercise: loadExercise,
     exercises: exercises,
+    studentData: {},
 
     // Set of modules currently in use -- keys are module names, value is
     // always true
@@ -710,7 +711,6 @@ define(function(require) {
           "issue-i18n": "Not translated"
         }[type];
 
-
         // Construct debug info
         var mathjaxInfo = "MathJax is " + (typeof MathJax === "undefined" ? "NOT loaded" :
           ("loaded, " + (MathJax.isReady ? "" : "NOT ") + "ready, queue length: " +
@@ -734,7 +734,6 @@ define(function(require) {
           debugInfo += "\n\n" + mathjaxLoadFailures;
         }
         issueInfo.debugInfo += "\n\n" + debugLogLog.join("\n");
-
 
         // Flag special users
         var profile = typeof KA !== "undefined" && KA.getUserProfile();
@@ -893,7 +892,6 @@ define(function(require) {
       // already get tagged with the current, original data-name.
       $("div.exercise").not("[data-name]").data("name", currentExerciseId);
 
-
       $.when.apply($, promises).then(function() {
         // All modules have now been loaded
         initialModulesPromise.resolve();
@@ -1009,7 +1007,6 @@ define(function(require) {
     }
   }
 
-
   function checkIfAnswerEmpty(guess) {
     // If multiple-answer, join all responses and check if that's empty
     // Remove commas left by joining nested arrays in case multiple-answer is nested
@@ -1051,49 +1048,41 @@ define(function(require) {
 
     if (typeof typeOverride !== "undefined") {
       problem = /^\d+$/.test(typeOverride) ?
-      // Access a problem by number
-      problems.eq(parseFloat(typeOverride)) :
+        // Access a problem by number
+        problems.eq(parseFloat(typeOverride)) :
 
-      // Or by its ID
-      problems.filter("#" + typeOverride);
+        // Or by its ID
+        problems.filter("#" + typeOverride);
 
       currentProblemType = typeOverride;
 
       // Otherwise create a random problem from weights
     } else {
 
-      Khan.exposed;
-      // Khan.queryEx();
+      Khan.queryEx();
+      console.log('insdie makeProblem');
+      console.dir(Khan.studentData);
+      Khan.flip = Khan.studentData.correct;
       //Initialize exercise questin array (Q)
       Khan.typeIndex = [];
 
-      if (Khan.flip == 1)
-      {
+      if (Khan.flip) {
 
-        if (Khan.corrects.length==0)
-          {
+        if (Khan.corrects.length == 0) {
+          Khan.corrects.push(Khan.typeNum);
+        } else {
+
+          if (Khan.corrects.indexOf(Khan.typeNum) >= 0) {
+
+          } else {
             Khan.corrects.push(Khan.typeNum);
           }
+        }
 
-        else
-          {
-
-            if (Khan.corrects.indexOf(Khan.typeNum)>=0)
-            {
-
-            }
-            else {
-                 Khan.corrects.push(Khan.typeNum);
-            }
-          }
-
+      } else {
+        Khan.corrects = [];
+        Khan.cweight = [];
       }
-
-    else
-    {Khan.corrects = [];
-     Khan.cweight = [];
-    }
-
 
       //Retrieve weight value per each question (Q)
       $.each(problems, function(index) {
@@ -1101,23 +1090,21 @@ define(function(require) {
           return;
         }
 
-        Khan.answer=Khan.corrects.toString();
+        Khan.answer = Khan.corrects.toString();
         //Add equestions to typeIndex based on their weight (Q)
         // var weight = $(this).data("weight") || 1;
         Khan.weight = $(this).data("weight") || 1;
 
-        Khan.cweight[index]=Khan.weight;
+        Khan.cweight[index] = Khan.weight;
 
-        for (var i = 0; i < Khan.corrects.length; i++)
-        {
-            Khan.sh = index;
+        for (var i = 0; i < Khan.corrects.length; i++) {
+          Khan.sh = index;
 
-            if (Khan.corrects[i] === Khan.sh)
-            {
-              Khan.weight = Khan.cweight[index]*0.1;
-              Khan.weight = Math.ceil (Khan.weight);
-              Khan.cweight[index]=Khan.weight;
-            }
+          if (Khan.corrects[i] === Khan.sh) {
+            Khan.weight = Khan.cweight[index] * 0.1;
+            Khan.weight = Math.ceil(Khan.weight);
+            Khan.cweight[index] = Khan.weight;
+          }
 
         }
 
@@ -1128,12 +1115,12 @@ define(function(require) {
 
       Khan.typeNum = Khan.typeIndex[Math.floor(KhanUtil.random() * Khan.typeIndex.length)];
       //   if (Khan.flip == 0 && Khan.attempt == 0 && Khan.hint == 0)
-            // {
-            //   Khan.typeNum = Khan.exposed;
-            // }
-            // else {
-            //
-            // }
+      // {
+      //   Khan.typeNum = Khan.exposed;
+      // }
+      // else {
+      //
+      // }
       problem = problems.eq(Khan.typeNum);
       currentProblemType = $(problem).attr("id") || "" + Khan.typeNum;
 
@@ -1524,8 +1511,8 @@ define(function(require) {
 
     if (userExercise == null || Khan.query.debug != null) {
       $("#problem-permalink").text("Permalink: " +
-        currentProblemType + " #" +
-        currentProblemSeed)
+          currentProblemType + " #" +
+          currentProblemSeed)
         .attr("href", window.location.protocol + "//" + window.location.host + window.location.pathname + "?debug&problem=" + currentProblemType + "&seed=" + currentProblemSeed);
     }
 
@@ -1589,7 +1576,6 @@ define(function(require) {
               "?debug&problem=" + probID)
           ));
       });
-
 
       // If this is a child exercise, show which one it came from
       if (exercise.data("name") !== currentExerciseId) {
@@ -2276,8 +2262,5 @@ define(function(require) {
     // Generate the initial problem when dependencies are done being loaded
     makeProblem(currentExerciseId);
   }
-
-
-
 
 });
