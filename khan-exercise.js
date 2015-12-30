@@ -1062,6 +1062,8 @@ define(function(require) {
       // Otherwise create a random problem from weights
     } else {
 
+      Khan.exposed;
+      // Khan.queryEx();
       //Initialize exercise questin array (Q)
       Khan.typeIndex = [];
 
@@ -1125,6 +1127,13 @@ define(function(require) {
       });
 
       Khan.typeNum = Khan.typeIndex[Math.floor(KhanUtil.random() * Khan.typeIndex.length)];
+      //   if (Khan.flip == 0 && Khan.attempt == 0 && Khan.hint == 0)
+            // {
+            //   Khan.typeNum = Khan.exposed;
+            // }
+            // else {
+            //
+            // }
       problem = problems.eq(Khan.typeNum);
       currentProblemType = $(problem).attr("id") || "" + Khan.typeNum;
 

@@ -388,8 +388,7 @@
         var useMultithreadedModule = ((Exercises.learningTask && !Exercises.learningTask.isComplete()));
         var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
 
-        var attemptData = Khan.buildAttemptData(0, 0, 0,
-          0, 0, 0);
+        var attemptData = Khan.buildAttemptData(0, 0, 0, 0, 0, 0);
           Khan.saveAttemptToServer(url, attemptData);
     }
 
