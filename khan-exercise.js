@@ -1062,7 +1062,14 @@ define(function(require) {
       Khan.queryEx();
       console.log('insdie makeProblem');
       console.dir(Khan.studentData);
-      Khan.flip = Khan.studentData.correct;
+      Khan.correct = Khan.studentData.correct;
+      Khan.ckeys = Khan.studentData.correct_keys;
+      Khan.exposed = Khan.studentData.exposed_key
+      Khan.attempt =  Khan.studentData.count_attempts;
+      Khan.hint =  Khan.studentData.hint_used;
+
+      Khan.corrects = Khan.ckeys.split(",");
+
       //Initialize exercise questin array (Q)
       Khan.typeIndex = [];
 
@@ -1081,6 +1088,7 @@ define(function(require) {
 
       } else {
         Khan.corrects = [];
+        // Khan.corrects = Khan.ckeys.split(",");
         Khan.cweight = [];
       }
 
@@ -1114,13 +1122,13 @@ define(function(require) {
       });
 
       Khan.typeNum = Khan.typeIndex[Math.floor(KhanUtil.random() * Khan.typeIndex.length)];
-      //   if (Khan.flip == 0 && Khan.attempt == 0 && Khan.hint == 0)
-      // {
-      //   Khan.typeNum = Khan.exposed;
-      // }
-      // else {
-      //
-      // }
+      if (Khan.correct == 0 && Khan.attempt == 0 && Khan.hint == 0 && Khan.typeIndex.length>Khan.exposed)
+      {
+        Khan.typeNum = Khan.exposed;
+      }
+      else {
+
+      }
       problem = problems.eq(Khan.typeNum);
       currentProblemType = $(problem).attr("id") || "" + Khan.typeNum;
 
