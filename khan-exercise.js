@@ -1073,16 +1073,16 @@ define(function(require) {
       //Initialize exercise questin array (Q)
       Khan.typeIndex = [];
 
-      if (Khan.flip) {
+      if (Khan.correct) {
 
         if (Khan.corrects.length == 0) {
-          Khan.corrects.push(Khan.typeNum);
+          Khan.corrects.push(Khan.exposed);
         } else {
 
-          if (Khan.corrects.indexOf(Khan.typeNum) >= 0) {
+          if (Khan.corrects.indexOf(Khan.exposed) >= 0) {
 
           } else {
-            Khan.corrects.push(Khan.typeNum);
+            Khan.corrects.push(Khan.exposed);
           }
         }
 
@@ -1122,13 +1122,15 @@ define(function(require) {
       });
 
       Khan.typeNum = Khan.typeIndex[Math.floor(KhanUtil.random() * Khan.typeIndex.length)];
-      if (Khan.correct == 0 && Khan.attempt == 0 && Khan.hint == 0 && Khan.typeIndex.length>Khan.exposed)
+      // if (Khan.correct == 0 && Khan.attempt == 0 && Khan.hint == 0 && Khan.typeIndex.length>Khan.exposed)
+      if (Khan.attempt == -1)
       {
         Khan.typeNum = Khan.exposed;
       }
       else {
 
       }
+      // Khan.typeNum = 6;
       problem = problems.eq(Khan.typeNum);
       currentProblemType = $(problem).attr("id") || "" + Khan.typeNum;
 
