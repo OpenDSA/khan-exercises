@@ -150,7 +150,6 @@
       KA.GANDALF_EXERCISES_SERVER_QUEUE;
   }
 
-
   // If any of these properties have already been defined, then leave them --
   // this happens in local mode
   _.defaults(Exercises, {
@@ -214,7 +213,6 @@
     .bind("subhintExpand", subhintExpand)
     .bind("clearExistingProblem", clearExistingProblem)
     .bind("showOptOut", showOptOut);
-
 
   function problemTemplateRendered() {
     previewingItem = Exercises.previewingItem;
@@ -383,15 +381,13 @@
       }
     }
 
-    if (Khan.typeIndex.length>1)
-      {
-        var useMultithreadedModule = ((Exercises.learningTask && !Exercises.learningTask.isComplete()));
-        var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
+    if (Khan.typeIndex.length > 1) {
+      var useMultithreadedModule = ((Exercises.learningTask && !Exercises.learningTask.isComplete()));
+      var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
 
-        var attemptData = Khan.buildAttemptData(0, 0, 0, 0, 0, 0);
-          Khan.saveAttemptToServer(url, attemptData);
+      var attemptData = Khan.buildAttemptData(0, -1, 0, 0, 0, 0);
+      Khan.saveAttemptToServer(url, attemptData);
     }
-
   }
 
   function handleCheckAnswer() {
@@ -828,7 +824,6 @@
       $(Khan).trigger("upcomingExercise", data);
     }
   }
-
 
   function gotoNextProblem() {
     var framework = Exercises.getCurrentFramework();
