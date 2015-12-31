@@ -1087,7 +1087,7 @@ define(function(require) {
         }
 
       } else {
-        Khan.corrects = [];
+        // Khan.corrects = [];
         // Khan.corrects = Khan.ckeys.split(",");
         Khan.cweight = [];
       }
