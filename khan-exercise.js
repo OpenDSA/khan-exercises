@@ -1059,6 +1059,10 @@ define(function(require) {
       // Otherwise create a random problem from weights
     } else {
 
+      //Initialize exercise questin array (Q)
+      Khan.typeIndex = [];
+
+
       Khan.queryEx();
       console.log('insdie makeProblem');
       console.dir(Khan.studentData);
@@ -1069,25 +1073,27 @@ define(function(require) {
       Khan.attempt =  Khan.studentData.count_attempts;
       Khan.hint =  Khan.studentData.hint_used;
       Khan.corrects = Khan.ckeys.split(",");
-      }
 
-      //Initialize exercise questin array (Q)
-      Khan.typeIndex = [];
+        if (Khan.correct) {
 
-      if (Khan.correct) {
-
-        if (Khan.corrects.length == 0) {
-          Khan.corrects.push(Khan.exposed);
-        } else {
-
-          if (Khan.corrects.indexOf(Khan.exposed) >= 0) {
-
-          } else {
+          if (Khan.corrects.length == 0) {
             Khan.corrects.push(Khan.exposed);
+          } else {
+
+            if (Khan.corrects.indexOf(Khan.exposed) >= 0) {
+
+            } else {
+              Khan.corrects.push(Khan.exposed);
+            }
           }
+
+        } else {
+          Khan.cweight = [];
         }
 
-      } else {
+      }
+
+      else {
         Khan.corrects = [];
         Khan.cweight = [];
       }
