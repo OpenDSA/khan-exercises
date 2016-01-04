@@ -1062,13 +1062,14 @@ define(function(require) {
       Khan.queryEx();
       console.log('insdie makeProblem');
       console.dir(Khan.studentData);
+      if (Object.keys(Khan.studentData).length > 0) {
       Khan.correct = Khan.studentData.correct;
       Khan.ckeys = Khan.studentData.correct_keys;
       Khan.exposed = Khan.studentData.exposed_key
       Khan.attempt =  Khan.studentData.count_attempts;
       Khan.hint =  Khan.studentData.hint_used;
-
       Khan.corrects = Khan.ckeys.split(",");
+      }
 
       //Initialize exercise questin array (Q)
       Khan.typeIndex = [];
@@ -1087,8 +1088,7 @@ define(function(require) {
         }
 
       } else {
-        // Khan.corrects = [];
-        // Khan.corrects = Khan.ckeys.split(",");
+        Khan.corrects = [];
         Khan.cweight = [];
       }
 
