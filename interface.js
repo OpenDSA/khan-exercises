@@ -388,7 +388,6 @@
       var attemptData = Khan.buildAttemptData(0, -1, 0, 0, 0, 0);
       Khan.saveAttemptToServer(url, attemptData);
     }
-    
   }
 
   function handleCheckAnswer() {
