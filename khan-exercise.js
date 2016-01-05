@@ -1066,16 +1066,16 @@ define(function(require) {
       Khan.queryEx();
       // console.log('insdie makeProblem');
       // console.dir(Khan.studentData);
-      if (typeof Khan.studentData !== "undefined" && Khan.studentData !== null) {
-      // if (Object.keys(Khan.studentData).length > 0) 
+      // if (typeof Khan.studentData !== "undefined" && Khan.studentData !== null)
+      if (Object.keys(Khan.studentData).length > 0) {
 
         // console.dir(Khan.studentData);
-      Khan.correct = Khan.studentData.correct;
-      Khan.ckeys = Khan.studentData.correct_keys;
-      Khan.exposed = Khan.studentData.exposed_key
-      Khan.attempt =  Khan.studentData.count_attempts;
-      Khan.hint =  Khan.studentData.hint_used;
-      Khan.corrects = Khan.ckeys.split(",");
+        Khan.correct = Khan.studentData.correct;
+        Khan.ckeys = Khan.studentData.correct_keys;
+        Khan.exposed = Khan.studentData.exposed_key
+        Khan.attempt =  Khan.studentData.count_attempts;
+        Khan.hint =  Khan.studentData.hint_used;
+        Khan.corrects = Khan.ckeys.split(",");
 
         if (Khan.correct) {
 
