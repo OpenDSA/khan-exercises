@@ -381,13 +381,14 @@
       }
     }
 
-    // This part is rolled back temporarily
-    // if (Khan.typeIndex.length > 1) {
-    //   var useMultithreadedModule = ((Exercises.learningTask && !Exercises.learningTask.isComplete()));
-    //   var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
-    //   var attemptData = Khan.buildAttemptData(0, 0, 0, 0, 0, 0);
-    //   Khan.saveAttemptToServer(url, attemptData);
-    // }
+    if (Khan.typeIndex.length > 1) {
+      var useMultithreadedModule = ((Exercises.learningTask && !Exercises.learningTask.isComplete()));
+      var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
+
+      var attemptData = Khan.buildAttemptData(0, -1, 0, 0, 0, 0);
+      Khan.saveAttemptToServer(url, attemptData);
+    }
+    
   }
 
   function handleCheckAnswer() {

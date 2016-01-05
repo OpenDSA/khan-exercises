@@ -1062,38 +1062,48 @@ define(function(require) {
       // Otherwise create a random problem from weights
     } else {
 
-      Khan.exposed;
-      // Khan.queryEx();
       //Initialize exercise questin array (Q)
       Khan.typeIndex = [];
 
-      if (Khan.flip == 1)
-      {
 
-        if (Khan.corrects.length==0)
-          {
-            Khan.corrects.push(Khan.typeNum);
+      Khan.queryEx();
+      // console.log('insdie makeProblem');
+      // console.dir(Khan.studentData);
+      if (typeof Khan.studentData !== "undefined" && Khan.studentData !== null) {
+      // if (Object.keys(Khan.studentData).length > 0) 
+
+        // console.dir(Khan.studentData);
+      Khan.correct = Khan.studentData.correct;
+      Khan.ckeys = Khan.studentData.correct_keys;
+      Khan.exposed = Khan.studentData.exposed_key
+      Khan.attempt =  Khan.studentData.count_attempts;
+      Khan.hint =  Khan.studentData.hint_used;
+      Khan.corrects = Khan.ckeys.split(",");
+
+        if (Khan.correct) {
+
+          if (Khan.corrects.length === 0) {
+            Khan.corrects.push(Khan.exposed);
+          } else {
+
+            if (Khan.corrects.indexOf(Khan.exposed) >= 0) {
+              // console.dir(Khan.corrects);
+            } else {
+              console.log(Khan.corrects);
+              Khan.corrects.push(Khan.exposed);
+            }
           }
 
-        else
-          {
-
-            if (Khan.corrects.indexOf(Khan.typeNum)>=0)
-            {
-
-            }
-            else {
-                 Khan.corrects.push(Khan.typeNum);
-            }
-          }
+        } else {
+          Khan.cweight = [];
+        }
 
       }
 
-    else
-    {Khan.corrects = [];
-     Khan.cweight = [];
-    }
-
+      else {
+        Khan.corrects = [];
+        Khan.cweight = [];
+      }
 
       //Retrieve weight value per each question (Q)
       $.each(problems, function(index) {
@@ -1101,23 +1111,21 @@ define(function(require) {
           return;
         }
 
-        Khan.answer=Khan.corrects.toString();
+        Khan.answer = Khan.corrects.toString();
         //Add equestions to typeIndex based on their weight (Q)
         // var weight = $(this).data("weight") || 1;
         Khan.weight = $(this).data("weight") || 1;
 
-        Khan.cweight[index]=Khan.weight;
+        Khan.cweight[index] = Khan.weight;
 
-        for (var i = 0; i < Khan.corrects.length; i++)
-        {
-            Khan.sh = index;
+        for (var i = 0; i < Khan.corrects.length; i++) {
+          Khan.sh = index;
 
-            if (Khan.corrects[i] === Khan.sh)
-            {
-              Khan.weight = Khan.cweight[index]*0.1;
-              Khan.weight = Math.ceil (Khan.weight);
-              Khan.cweight[index]=Khan.weight;
-            }
+          if (Khan.corrects[i] === Khan.sh) {
+            Khan.weight = Khan.cweight[index] * 0.1;
+            Khan.weight = Math.ceil(Khan.weight);
+            Khan.cweight[index] = Khan.weight;
+          }
 
         }
 
@@ -1127,17 +1135,19 @@ define(function(require) {
       });
 
       Khan.typeNum = Khan.typeIndex[Math.floor(KhanUtil.random() * Khan.typeIndex.length)];
-      //   if (Khan.flip == 0 && Khan.attempt == 0 && Khan.hint == 0)
-            // {
-            //   Khan.typeNum = Khan.exposed;
-            // }
-            // else {
-            //
-            // }
+      // if (Khan.correct == 0 && Khan.attempt == 0 && Khan.hint == 0 && Khan.typeIndex.length>Khan.exposed)
+      if (Khan.attempt == -1)
+      {
+        Khan.typeNum = Khan.exposed;
+      }
+      else {
+
+      }
+      // Khan.typeNum = 6;
       problem = problems.eq(Khan.typeNum);
       currentProblemType = $(problem).attr("id") || "" + Khan.typeNum;
 
-    }
+      }
 
     // TODO(brianmerlob): If we still don't have a problem then it's time to fail as gracefully
     // as we can. This probably occurs during mastery challenges when some sort of race
