@@ -1084,21 +1084,17 @@ define(function(require) {
             Khan.corrects.push(Khan.exposedString);
           } else {
 
-            if (Khan.corrects.indexOf(Khan.exposedString) >= 0) {
-              console.dir(Khan.corrects);
-            } else {
-              // console.log(Khan.corrects);
               Khan.corrects.push(Khan.exposedString);
-            }
+            // if (Khan.corrects.indexOf(Khan.exposedString) >= 0) {
+            // } else {
+            //   Khan.corrects.push(Khan.exposedString);
+            // }
           }
-
         }
         // else {
         //   Khan.cweight = [];
         // }
-
       }
-
       else {
         Khan.corrects = [];
         Khan.cweight = [];
@@ -1117,27 +1113,27 @@ define(function(require) {
 
         Khan.cweight[index] = Khan.weight;
 
-        // for (var i = 0; i < Khan.corrects.length; i++) {
-        //   Khan.sh = index;
-        //
-        //   if (Khan.corrects[i] == Khan.sh) {
-        //     Khan.weight = Khan.cweight[index] * 0.1;
-        //     Khan.weight = Math.ceil(Khan.weight);
-        //     Khan.cweight[index] = Khan.weight;
-        //   }
-
-        // for (var i = 0; i < Khan.corrects.length; i++) {
-            Khan.sh = index;
-            Khan.shString = Khan.sh.toString();
-        if (Khan.corrects.indexOf(Khan.shString) >= 0) {
-              Khan.weight = Khan.cweight[index] * 0.1;
-              Khan.weight = Math.ceil(Khan.weight);
-              Khan.cweight[index] = Khan.weight;
+        for (var i = 0; i < Khan.corrects.length; i++) {
+          Khan.sh = index;
+          Khan.shString = Khan.sh.toString();
+          if (Khan.corrects[i] == Khan.shString) {
+            Khan.weight = Khan.cweight[index] * 0.1;
+            Khan.weight = Math.ceil(Khan.weight);
+            Khan.cweight[index] = Khan.weight;
           }
+
+        // for (var i = 0; i < Khan.corrects.length; i++) {
+        //     Khan.sh = index;
+        //     Khan.shString = Khan.sh.toString();
+        // if (Khan.corrects.indexOf(Khan.shString) >= 0) {
+        //       Khan.weight = Khan.cweight[index] * 0.1;
+        //       Khan.weight = Math.ceil(Khan.weight);
+        //       Khan.cweight[index] = Khan.weight;
+        //   }
         // }
 
 
-        // }
+        }
 
         _.times(Khan.weight, function() {
           Khan.typeIndex.push(index);
