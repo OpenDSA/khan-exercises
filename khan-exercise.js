@@ -1058,6 +1058,15 @@ define(function(require) {
       // Otherwise create a random problem from weights
     } else {
 
+      // if student doesn't get proficiency then remove problems that he answered correctly.
+      var correct_exercises = Khan.studentData.correct_exercises;
+      if (!Khan.proficiency) {
+        for (var i = 0; i < correct_exercises.length; i++) {
+          if (correct_exercises[i]) {
+            problems.filter("#" + correct_exercises[i]).remove();
+          }
+        };
+      }
       var typeIndex = [];
       $.each(problems, function(index) {
         if ($(this).data("weight") === 0) {
@@ -1069,14 +1078,11 @@ define(function(require) {
         });
       });
 
-      // select exercise which student didn't solve correctly yet.
-      do {
-        var typeNum = typeIndex[Math.floor(KhanUtil.random() * typeIndex.length)];
-        problem = problems.eq(typeNum);
-        // note: it is very important to have a unique id for each indevidual exercise (problem)
-        currentProblemType = $(problem).attr("id") || "" + typeNum;
-        console.log(currentProblemType);
-      } while ($.inArray(currentProblemType, Khan.studentData.correct_exercises) > -1);
+      var typeNum = typeIndex[Math.floor(KhanUtil.random() * typeIndex.length)];
+      problem = problems.eq(typeNum);
+      // note: it is very important to have a unique id for each indevidual exercise (problem)
+      currentProblemType = $(problem).attr("id") || "" + typeNum;
+      console.log(currentProblemType);
 
       // save selected exercise in DB so that when user refresh the page the same exercise will be rendered
       var url = Khan.odsaFullUrl("updateExercise");
