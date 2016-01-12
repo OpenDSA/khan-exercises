@@ -1058,12 +1058,12 @@ define(function(require) {
       // Otherwise create a random problem from weights
     } else {
 
-      // if student doesn't get proficiency then remove problems that he answered correctly.
-      var correct_exercises = Khan.studentData.correct_exercises;
-      if (!Khan.proficiency && correct_exercises !== undefined) {
-        for (var i = 0; i < correct_exercises.length; i++) {
-          if (correct_exercises[i]) {
-            problems.filter("#" + correct_exercises[i]).remove();
+      // if student doesn't get proficiency then remove problems that he already answered correctly.
+      var correctExercises = Khan.studentData.correct_exercises;
+      if (!Khan.proficiency && correctExercises !== undefined) {
+        for (var i = 0; i < correctExercises.length; i++) {
+          if (correctExercises[i]) {
+            problems.filter("#" + correctExercises[i]).remove();
           }
         };
       }
@@ -2226,8 +2226,15 @@ define(function(require) {
     // Generate the initial problem when dependencies are done being loaded
     $.when.apply($, Khan.currentExercisePromise)
       .then(function() {
-      // console.dir(Khan.studentData);
-        makeProblem(currentExerciseId, Khan.studentData.current_exercise);
+        var currentExercise = Khan.studentData.currect_exercise,
+          correctExercises = Khan.studentData.correct_exercises
+
+        // if currentExercise is one of the correctExercises then let KA framework select a new exercise
+        if (correctExercises !== undefined && ($.inArray(currentExercise, correctExercises) > -1)) {
+          currectExercise = undefined;
+          console.log("here");
+        }
+        makeProblem(currentExerciseId, currentExercise);
       }, function() {});
   }
 });
