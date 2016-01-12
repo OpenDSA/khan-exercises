@@ -380,14 +380,6 @@
         Exercises.RelatedVideos.render(relatedVideos);
       }
     }
-
-    if (Khan.typeIndex.length > 1) {
-      var useMultithreadedModule = ((Exercises.learningTask && !Exercises.learningTask.isComplete()));
-      var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
-
-      var attemptData = Khan.buildAttemptData(0, -1, 0, 0, 0, 0);
-      Khan.saveAttemptToServer(url, attemptData);
-    }
   }
 
   function handleCheckAnswer() {
@@ -450,10 +442,6 @@
     // We need to alert the user when the given answer is incorrect
     if (!attemptMessage && !(score.correct || skipped)) {
       attemptMessage = $._("Incorrect answer, please try again.");
-
-      //Q flag when the question is incorrect
-      Khan.flip = 0;
-
     }
 
     var $attemptMessage = $("#check-answer-results > p");
@@ -535,10 +523,6 @@
         nextButtonText = $._("Awesome! Show points...");
       } else {
         nextButtonText = $._("Correct! Next question...");
-
-        //Q flag when the question is correct
-        Khan.flip = 1;
-
       }
 
       $("#next-question-button")
@@ -607,7 +591,7 @@
     var useMultithreadedModule = (!score.correct ||
       (Exercises.learningTask && !Exercises.learningTask.isComplete()));
 
-    var url = Khan.odsaFullUrl("problems/" + problemNum + "/attempt", useMultithreadedModule);
+    var url = Khan.odsaFullUrl();
 
     // This needs to be after all updates to Exercises.currentCard (such as the
     // "problemDone" event) or it will send incorrect data to the server
@@ -745,10 +729,10 @@
     }
   }
 
-  Khan.inUnload = false;
+  var inUnload = false;
 
   $(window).on("beforeunload", function() {
-    Khan.inUnload = true;
+    inUnload = true;
   });
 
   // If there are any requests left in the queue when the window unloads then we

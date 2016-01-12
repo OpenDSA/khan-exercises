@@ -181,7 +181,6 @@ define(function(require) {
     localMode: localMode,
     loadExercise: loadExercise,
     exercises: exercises,
-    studentData: {},
 
     // Set of modules currently in use -- keys are module names, value is
     // always true
@@ -1059,99 +1058,37 @@ define(function(require) {
       // Otherwise create a random problem from weights
     } else {
 
-      //Initialize exercise questin array (Q)
-      Khan.typeIndex = [];
-
-      Khan.queryEx();
-      // console.log('insdie makeProblem');
-      // console.dir(Khan.studentData);
-      // if (typeof Khan.studentData !== "undefined" && Khan.studentData !== null)
-      if (Object.keys(Khan.studentData).length > 0) {
-
-        Khan.cweight = [];
-        // console.dir(Khan.studentData);
-        Khan.correct = Khan.studentData.correct;
-        Khan.ckeys = Khan.studentData.correct_keys;
-        Khan.exposed = Khan.studentData.exposed_key
-        Khan.exposedString = Khan.exposed.toString();
-        Khan.attempt =  Khan.studentData.count_attempts;
-        Khan.hint =  Khan.studentData.hint_used;
-        Khan.corrects = Khan.ckeys.split(",");
-
-        if (Khan.correct) {
-
-          if (Khan.corrects.length === 0) {
-            Khan.corrects.push(Khan.exposedString);
-          } else {
-
-              Khan.corrects.push(Khan.exposedString);
-            // if (Khan.corrects.indexOf(Khan.exposedString) >= 0) {
-            // } else {
-            //   Khan.corrects.push(Khan.exposedString);
-            // }
+      // if student doesn't get proficiency then remove problems that he answered correctly.
+      var correct_exercises = Khan.studentData.correct_exercises;
+      if (!Khan.proficiency && correct_exercises !== undefined) {
+        for (var i = 0; i < correct_exercises.length; i++) {
+          if (correct_exercises[i]) {
+            problems.filter("#" + correct_exercises[i]).remove();
           }
-        }
-        // else {
-        //   Khan.cweight = [];
-        // }
+        };
       }
-      else {
-        Khan.corrects = [];
-        Khan.cweight = [];
-      }
-
-      //Retrieve weight value per each question (Q)
+      var typeIndex = [];
       $.each(problems, function(index) {
         if ($(this).data("weight") === 0) {
           return;
         }
-
-        Khan.answer = Khan.corrects.toString();
-        //Add equestions to typeIndex based on their weight (Q)
-        // var weight = $(this).data("weight") || 1;
-        Khan.weight = $(this).data("weight") || 1;
-
-        Khan.cweight[index] = Khan.weight;
-
-        for (var i = 0; i < Khan.corrects.length; i++) {
-          Khan.sh = index;
-          Khan.shString = Khan.sh.toString();
-          if (Khan.corrects[i] == Khan.shString) {
-            Khan.weight = Khan.cweight[index] * 0.1;
-            Khan.weight = Math.ceil(Khan.weight);
-            Khan.cweight[index] = Khan.weight;
-          }
-
-        // for (var i = 0; i < Khan.corrects.length; i++) {
-        //     Khan.sh = index;
-        //     Khan.shString = Khan.sh.toString();
-        // if (Khan.corrects.indexOf(Khan.shString) >= 0) {
-        //       Khan.weight = Khan.cweight[index] * 0.1;
-        //       Khan.weight = Math.ceil(Khan.weight);
-        //       Khan.cweight[index] = Khan.weight;
-        //   }
-        // }
-
-
-        }
-
-        _.times(Khan.weight, function() {
-          Khan.typeIndex.push(index);
+        var weight = $(this).data("weight") || 1;
+        _.times(weight, function() {
+          typeIndex.push(index);
         });
       });
 
-      Khan.typeNum = Khan.typeIndex[Math.floor(KhanUtil.random() * Khan.typeIndex.length)];
-      // if (Khan.correct == 0 && Khan.attempt == 0 && Khan.hint == 0 && Khan.typeIndex.length>Khan.exposed)
-      if (Khan.attempt == -1)
-      {
-        Khan.typeNum = Khan.exposed;
-      }
-      else {
+      var typeNum = typeIndex[Math.floor(KhanUtil.random() * typeIndex.length)];
+      problem = problems.eq(typeNum);
+      // note: it is very important to have a unique id for each indevidual exercise (problem)
+      currentProblemType = $(problem).attr("id") || "" + typeNum;
+      // console.log(currentProblemType);
 
-      }
-      problem = problems.eq(Khan.typeNum);
-      currentProblemType = $(problem).attr("id") || "" + Khan.typeNum;
-      }
+      // save selected exercise in DB so that when user refresh the page the same exercise will be rendered
+      var url = Khan.odsaFullUrl("updateExercise");
+      Khan.studentData.current_exercise = currentProblemType;
+      Khan.request(url, Khan.studentData)
+    }
 
     // TODO(brianmerlob): If we still don't have a problem then it's time to fail as gracefully
     // as we can. This probably occurs during mastery challenges when some sort of race
@@ -2274,8 +2211,7 @@ define(function(require) {
   function injectLocalModeSite(html, htmlExercise) {
     $("body").prepend(html);
     $("#container .exercises-header span").eq(1).append(document.title);
-    $("#container .exercises-body .current-card-contents").html(
-      htmlExercise);
+    $("#container .exercises-body .current-card-contents").html(htmlExercise);
 
     if (Khan.query.layout === "lite") {
       $("html").addClass("lite");
@@ -2284,10 +2220,14 @@ define(function(require) {
     $(Exercises).trigger("problemTemplateRendered");
 
     Khan.exercises = Khan.exercises.add($("div.exercise").detach());
+    // console.log(currentExerciseId);
+    Khan.odsaPointsAreaDeff.resolve();
 
-    Khan.tempdeff.resolve();
     // Generate the initial problem when dependencies are done being loaded
-    makeProblem(currentExerciseId);
+    $.when.apply($, Khan.currentExercisePromise)
+      .then(function() {
+      // console.dir(Khan.studentData);
+        makeProblem(currentExerciseId, Khan.studentData.current_exercise);
+      }, function() {});
   }
-
 });
