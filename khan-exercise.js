@@ -1060,7 +1060,7 @@ define(function(require) {
 
       // if student doesn't get proficiency then remove problems that he answered correctly.
       var correct_exercises = Khan.studentData.correct_exercises;
-      if (!Khan.proficiency) {
+      if (!Khan.proficiency && correct_exercises !== undefined) {
         for (var i = 0; i < correct_exercises.length; i++) {
           if (correct_exercises[i]) {
             problems.filter("#" + correct_exercises[i]).remove();
