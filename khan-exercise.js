@@ -1042,7 +1042,7 @@ define(function(require) {
     }).children(".problems").children();
 
     // if summary exercise, work with a clone to avoid modifying the original
-    if (Khan.) {
+    if (Khan.currentExercisePromise) {
       problems = problems.clone();
       // keep another copy in case we run out of exercises
       var fallBackProblems = problems.clone();
