@@ -1041,10 +1041,12 @@ define(function(require) {
       return $.data(this, "name") === exerciseId;
     }).children(".problems").children();
 
-    // Work with a clone to avoid modifying the original
-    problems = problems.clone();
-    // keep another copy in case we run out of exercises
-    var fallBackProblems = problems.clone();
+    // if summary exercise, work with a clone to avoid modifying the original
+    if (Khan.) {
+      problems = problems.clone();
+      // keep another copy in case we run out of exercises
+      var fallBackProblems = problems.clone();
+    }
 
     if (!problems.length) {
       Khan.error("No problem matching exerciseId " + exerciseId);
@@ -1060,23 +1062,26 @@ define(function(require) {
       currentProblemType = typeOverride;
       // Otherwise create a random problem from weights
     } else {
-      // if student doesn't get proficiency then remove problems that he already answered correctly.
-      var correctExercises = Khan.studentData.correctExercises;
-      if (!Khan.proficiency && correctExercises !== undefined) {
-        for (var i = 0; i < correctExercises.length; i++) {
-          if (correctExercises[i]) {
-            // if exercise developer marked an exercise as block=false then this exercise
-            // should not be removed (blocked) even when student answer it correctly
-            var block = $(problems.filter("#" + correctExercises[i])).data("block");
-            if (block === undefined || (block !== undefined && block)) {
-              problems = problems.not("#" + correctExercises[i]);
+      // if summary exercise
+      if (Khan.currentExercisePromise) {
+        // if student doesn't get proficiency then remove problems that he already answered correctly.
+        var correctExercises = Khan.studentData.correctExercises;
+        if (!Khan.proficiency && correctExercises !== undefined) {
+          for (var i = 0; i < correctExercises.length; i++) {
+            if (correctExercises[i]) {
+              // if exercise developer marked an exercise as block=false then this exercise
+              // should not be removed (blocked) even when student answer it correctly
+              var block = $(problems.filter("#" + correctExercises[i])).data("block");
+              if (block === undefined || (block !== undefined && block)) {
+                problems = problems.not("#" + correctExercises[i]);
+              }
             }
-          }
-        };
-      }
-      // temporarly open all questions if previous removing process results in no problems
-      if (problems.length === 0) {
-        problems = fallBackProblems;
+          };
+        }
+        // temporarily open all questions of previous removing process results in no problems
+        if (problems.length === 0) {
+          problems = fallBackProblems;
+        }
       }
 
       var typeIndex = [];
@@ -1096,7 +1101,7 @@ define(function(require) {
       currentProblemType = $(problem).attr("id") || "" + typeNum;
 
       // save selected exercise in DB so that when user refresh the page the same exercise will be rendered
-      if (currentProblemType !== "undefined") {
+      if (currentProblemType !== "undefined" && Khan.currentExercisePromise) {
         var url = Khan.odsaFullUrl("updateExercise");
         Khan.studentData.current_exercise = currentProblemType;
         Khan.request(url, Khan.studentData)
@@ -2241,8 +2246,9 @@ define(function(require) {
         var currentExercise = Khan.studentData.currentExercise;
         var correctExercises = Khan.studentData.correctExercises;
 
-        // if currentExercise is one of the correctExercises then let KA framework select a new exercise
-        if (correctExercises !== undefined && ($.inArray(currentExercise, correctExercises) > -1)) {
+        // if currentExercise is one of the correctExercises or student got the proficiency
+        // then let KA framework select a new exercise
+        if ((correctExercises !== undefined && ($.inArray(currentExercise, correctExercises) > -1)) || Khan.proficiency) {
           currentExercise = undefined;
         }
         makeProblem(currentExerciseId, currentExercise);
