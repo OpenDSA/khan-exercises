@@ -1041,10 +1041,14 @@ define(function(require) {
       return $.data(this, "name") === exerciseId;
     }).children(".problems").children();
 
+    // Work with a clone to avoid modifying the original
+    problems = problems.clone();
+    // keep another copy in case we run out of exercises
+    var fallBackProblems = problems.clone();
+
     if (!problems.length) {
       Khan.error("No problem matching exerciseId " + exerciseId);
     }
-
     if (typeof typeOverride !== "undefined") {
       problem = /^\d+$/.test(typeOverride) ?
         // Access a problem by number
@@ -1054,19 +1058,27 @@ define(function(require) {
         problems.filter("#" + typeOverride);
 
       currentProblemType = typeOverride;
-
       // Otherwise create a random problem from weights
     } else {
-
       // if student doesn't get proficiency then remove problems that he already answered correctly.
-      var correctExercises = Khan.studentData.correct_exercises;
+      var correctExercises = Khan.studentData.correctExercises;
       if (!Khan.proficiency && correctExercises !== undefined) {
         for (var i = 0; i < correctExercises.length; i++) {
           if (correctExercises[i]) {
-            problems.filter("#" + correctExercises[i]).remove();
+            // if exercise developer marked an exercise as block=false then this exercise
+            // should not be removed (blocked) even when student answer it correctly
+            var block = $(problems.filter("#" + correctExercises[i])).data("block");
+            if (block === undefined || (block !== undefined && block)) {
+              problems = problems.not("#" + correctExercises[i]);
+            }
           }
         };
       }
+      // temporarly open all questions if previous removing process results in no problems
+      if (problems.length === 0) {
+        problems = fallBackProblems;
+      }
+
       var typeIndex = [];
       $.each(problems, function(index) {
         if ($(this).data("weight") === 0) {
@@ -1082,12 +1094,13 @@ define(function(require) {
       problem = problems.eq(typeNum);
       // note: it is very important to have a unique id for each indevidual exercise (problem)
       currentProblemType = $(problem).attr("id") || "" + typeNum;
-      // console.log(currentProblemType);
 
       // save selected exercise in DB so that when user refresh the page the same exercise will be rendered
-      var url = Khan.odsaFullUrl("updateExercise");
-      Khan.studentData.current_exercise = currentProblemType;
-      Khan.request(url, Khan.studentData)
+      if (currentProblemType !== "undefined") {
+        var url = Khan.odsaFullUrl("updateExercise");
+        Khan.studentData.current_exercise = currentProblemType;
+        Khan.request(url, Khan.studentData)
+      }
     }
 
     // TODO(brianmerlob): If we still don't have a problem then it's time to fail as gracefully
@@ -2220,19 +2233,17 @@ define(function(require) {
     $(Exercises).trigger("problemTemplateRendered");
 
     Khan.exercises = Khan.exercises.add($("div.exercise").detach());
-    // console.log(currentExerciseId);
     Khan.odsaPointsAreaDeff.resolve();
 
     // Generate the initial problem when dependencies are done being loaded
     $.when.apply($, Khan.currentExercisePromise)
       .then(function() {
-        var currentExercise = Khan.studentData.currect_exercise,
-          correctExercises = Khan.studentData.correct_exercises
+        var currentExercise = Khan.studentData.currentExercise;
+        var correctExercises = Khan.studentData.correctExercises;
 
         // if currentExercise is one of the correctExercises then let KA framework select a new exercise
         if (correctExercises !== undefined && ($.inArray(currentExercise, correctExercises) > -1)) {
-          currectExercise = undefined;
-          console.log("here");
+          currentExercise = undefined;
         }
         makeProblem(currentExerciseId, currentExercise);
       }, function() {});
