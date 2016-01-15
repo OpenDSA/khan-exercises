@@ -706,6 +706,18 @@
     // consider their next attempt to be unique and legitimate even if it's the
     // same answer they attempted previously.
     lastAttemptContent = null;
+
+    var curTime = new Date().getTime();
+    var timeTaken = Math.round((curTime - lastAttemptOrHint) / 1000);
+    lastAttemptOrHint = curTime;
+
+    Exercises.userActivityLog.push(["hint-activity", "0", timeTaken]);
+
+    if (!previewingItem && !(userExercise && userExercise.readOnly) &&
+      !(Exercises.currentCard && Exercises.currentCard.get("preview")) && canAttempt) {
+      var url = Khan.odsaFullUrl('hint');
+      Khan.request(url, Khan.buildAttemptData(false, attempts, "hint", timeTaken, false));
+    }
   }
 
   function updateHintButtonText() {
