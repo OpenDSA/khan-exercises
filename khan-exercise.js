@@ -1053,11 +1053,11 @@ define(function(require) {
     }
     if (typeof typeOverride !== "undefined") {
       problem = /^\d+$/.test(typeOverride) ?
-        // Access a problem by number
-        problems.eq(parseFloat(typeOverride)) :
+      // Access a problem by number
+      problems.eq(parseFloat(typeOverride)) :
 
-        // Or by its ID
-        problems.filter("#" + typeOverride);
+      // Or by its ID
+      problems.filter("#" + typeOverride);
 
       currentProblemType = typeOverride;
       // Otherwise create a random problem from weights
@@ -1065,7 +1065,9 @@ define(function(require) {
       // if summary exercise
       if (Khan.currentExercisePromise) {
         // if student doesn't get proficiency then remove problems that he already answered correctly.
-        var correctExercises = Khan.studentData.correctExercises;
+        var correctExercises = Khan.studentData.correct_exercises,
+          currentExercise = Khan.studentData.current_exercise,
+          hintedExercise = Khan.studentData.hinted_exercise;
         if (!Khan.proficiency && correctExercises !== undefined) {
           for (var i = 0; i < correctExercises.length; i++) {
             if (correctExercises[i]) {
@@ -1078,8 +1080,9 @@ define(function(require) {
             }
           };
         }
-        // temporarily open all questions of previous removing process results in no problems
-        if (problems.length === 0) {
+        // temporarily open all questions if previous remove exercise process results in no exercise left,
+        // OR only one exercise left but student won't get credit for it becasue of hint used
+        if ((problems.length === 0) || (problems.length === 1 && currentExercise === hintedExercise)) {
           problems = fallBackProblems;
         }
       }
@@ -1493,8 +1496,8 @@ define(function(require) {
 
     if (userExercise == null || Khan.query.debug != null) {
       $("#problem-permalink").text("Permalink: " +
-          currentProblemType + " #" +
-          currentProblemSeed)
+        currentProblemType + " #" +
+        currentProblemSeed)
         .attr("href", window.location.protocol + "//" + window.location.host + window.location.pathname + "?debug&problem=" + currentProblemType + "&seed=" + currentProblemSeed);
     }
 
@@ -2240,15 +2243,32 @@ define(function(require) {
     Khan.exercises = Khan.exercises.add($("div.exercise").detach());
     Khan.odsaPointsAreaDeff.resolve();
 
+    var problems = Khan.exercises.filter(function() {
+      return $.data(this, "name") === currentExerciseId;
+    }).children(".problems").children();
+
     // Generate the initial problem when dependencies are done being loaded
     $.when.apply($, Khan.currentExercisePromise)
       .then(function() {
-        var currentExercise = Khan.studentData.currentExercise;
-        var correctExercises = Khan.studentData.correctExercises;
-
-        // if currentExercise is one of the correctExercises or student got the proficiency
+        if (Khan.currentExercisePromise) {
+          var correctExercises = Khan.studentData.correct_exercises,
+            currentExercise = Khan.studentData.current_exercise,
+            hintedExercise = Khan.studentData.hinted_exercise;
+          if (!Khan.proficiency && correctExercises !== undefined) {
+            for (var i = 0; i < correctExercises.length; i++) {
+              if (correctExercises[i]) {
+                var block = $(problems.filter("#" + correctExercises[i])).data("block");
+                if (block === undefined || (block !== undefined && block)) {
+                  problems = problems.not("#" + correctExercises[i]);
+                }
+              }
+            };
+          }
+        }
+        // If currentExercise is one of the correctExercises OR student got the proficiency
+        // OR there are no exercies left OR only one exercise left but student won't get credit because of hint used
         // then let KA framework select a new exercise
-        if ((correctExercises !== undefined && ($.inArray(currentExercise, correctExercises) > -1)) || Khan.proficiency) {
+        if ((correctExercises !== undefined && ($.inArray(currentExercise, correctExercises) > -1)) || Khan.proficiency || (problems.length === 0) || (problems.length === 1 && currentExercise === hintedExercise)) {
           currentExercise = undefined;
         }
         makeProblem(currentExerciseId, currentExercise);
