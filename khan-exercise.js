@@ -1053,11 +1053,11 @@ define(function(require) {
     }
     if (typeof typeOverride !== "undefined") {
       problem = /^\d+$/.test(typeOverride) ?
-      // Access a problem by number
-      problems.eq(parseFloat(typeOverride)) :
+        // Access a problem by number
+        problems.eq(parseFloat(typeOverride)) :
 
-      // Or by its ID
-      problems.filter("#" + typeOverride);
+        // Or by its ID
+        problems.filter("#" + typeOverride);
 
       currentProblemType = typeOverride;
       // Otherwise create a random problem from weights
@@ -1098,7 +1098,7 @@ define(function(require) {
         });
       });
 
-      var typeNum = typeIndex[Math.floor(KhanUtil.random() * typeIndex.length)];
+      var typeNum = typeIndex[Math.floor(Math.random() * typeIndex.length)];
       problem = problems.eq(typeNum);
       // note: it is very important to have a unique id for each indevidual exercise (problem)
       currentProblemType = $(problem).attr("id") || "" + typeNum;
@@ -1118,7 +1118,7 @@ define(function(require) {
     // This should _never_ happen, and hopefully these autoSubmitIssues will help debug.
     if (!problem.length && problems.length) {
       Khan.autoSubmitIssue("type was for the incorrect problem; failed gracefully");
-      problem = problems.eq(Math.floor(KhanUtil.random() * problems.length));
+      problem = problems.eq(Math.floor(Math.random() * problems.length));
     }
 
     // Find which exercise this problem is from
@@ -1496,8 +1496,8 @@ define(function(require) {
 
     if (userExercise == null || Khan.query.debug != null) {
       $("#problem-permalink").text("Permalink: " +
-        currentProblemType + " #" +
-        currentProblemSeed)
+          currentProblemType + " #" +
+          currentProblemSeed)
         .attr("href", window.location.protocol + "//" + window.location.host + window.location.pathname + "?debug&problem=" + currentProblemType + "&seed=" + currentProblemSeed);
     }
 
