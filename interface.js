@@ -713,20 +713,8 @@
 
     Exercises.userActivityLog.push(["hint-activity", "0", timeTaken]);
 
-    // No hints should be send to server in case of dynamic questions, the ones that has data-block="false"
-    var problems = Khan.exercises.filter(function() {
-      return $.data(this, "name") === Khan.currentExerciseId;
-    }).children(".problems").children();
-
-    var dynamicQuestion = false;
-    if (problems.length) {
-      problem = problems.filter("#" + Khan.studentData.current_exercise);
-      dynamicQuestion = $(problem).data("block") === false ? true : false;
-    }
-
     if (!previewingItem && !(userExercise && userExercise.readOnly) &&
-      !(Exercises.currentCard && Exercises.currentCard.get("preview")) && canAttempt &&
-      !dynamicQuestion) {
+      !(Exercises.currentCard && Exercises.currentCard.get("preview")) && canAttempt) {
       var url = Khan.odsaFullUrl('hint');
       Khan.request(url, Khan.buildAttemptData(false, attempts, "hint", timeTaken, false));
     }
