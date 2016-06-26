@@ -591,7 +591,7 @@
     var useMultithreadedModule = (!score.correct ||
       (Exercises.learningTask && !Exercises.learningTask.isComplete()));
 
-    var url = Khan.odsaFullUrl();
+    var url = Khan.odsaFullUrl('attempt');
 
     // This needs to be after all updates to Exercises.currentCard (such as the
     // "problemDone" event) or it will send incorrect data to the server
