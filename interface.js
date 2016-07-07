@@ -591,7 +591,7 @@
     var useMultithreadedModule = (!score.correct ||
       (Exercises.learningTask && !Exercises.learningTask.isComplete()));
 
-    var url = Khan.odsaFullUrl('attempt');
+    var url = Khan.odsaFullUrl();
 
     // This needs to be after all updates to Exercises.currentCard (such as the
     // "problemDone" event) or it will send incorrect data to the server
@@ -715,7 +715,7 @@
 
     if (!previewingItem && !(userExercise && userExercise.readOnly) &&
       !(Exercises.currentCard && Exercises.currentCard.get("preview")) && canAttempt) {
-      var url = Khan.odsaFullUrl('hint');
+      var url = Khan.odsaFullUrl();
       Khan.request(url, Khan.buildAttemptData(false, attempts, "hint", timeTaken, false));
     }
   }

@@ -1053,11 +1053,11 @@ define(function(require) {
     }
     if (typeof typeOverride !== "undefined") {
       problem = /^\d+$/.test(typeOverride) ?
-        // Access a problem by number
-        problems.eq(parseFloat(typeOverride)) :
+      // Access a problem by number
+      problems.eq(parseFloat(typeOverride)) :
 
-        // Or by its ID
-        problems.filter("#" + typeOverride);
+      // Or by its ID
+      problems.filter("#" + typeOverride);
 
       currentProblemType = typeOverride;
       // Otherwise create a random problem from weights
@@ -1105,7 +1105,7 @@ define(function(require) {
 
       // save selected exercise in DB so that when user refresh the page the same exercise will be rendered
       if (currentProblemType !== "undefined" && Khan.currentExercisePromise) {
-        var url = Khan.odsaFullUrl("updateExercise");
+        var url = Khan.odsaFullUrl("updateExercise"); // TODO: to be replaced with OpenDSA-LTI updateExercise end point
         Khan.studentData.current_exercise = currentProblemType;
         Khan.request(url, Khan.studentData)
       }
@@ -1496,8 +1496,8 @@ define(function(require) {
 
     if (userExercise == null || Khan.query.debug != null) {
       $("#problem-permalink").text("Permalink: " +
-          currentProblemType + " #" +
-          currentProblemSeed)
+        currentProblemType + " #" +
+        currentProblemSeed)
         .attr("href", window.location.protocol + "//" + window.location.host + window.location.pathname + "?debug&problem=" + currentProblemType + "&seed=" + currentProblemSeed);
     }
 
