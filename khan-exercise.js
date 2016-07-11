@@ -1107,7 +1107,7 @@ define(function(require) {
       if (currentProblemType !== "undefined" && Khan.currentExercisePromise) {
         var url = Khan.odsaFullUrl("updateExercise"); // TODO: to be replaced with OpenDSA-LTI updateExercise end point
         Khan.studentData.current_exercise = currentProblemType;
-        Khan.request(url, Khan.studentData)
+        // Khan.request(url, Khan.studentData)
       }
     }
 
