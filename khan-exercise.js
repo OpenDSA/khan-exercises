@@ -1105,9 +1105,17 @@ define(function(require) {
 
       // save selected exercise in DB so that when user refresh the page the same exercise will be rendered
       if (currentProblemType !== "undefined" && Khan.currentExercisePromise) {
-        var url = Khan.odsaFullUrl("updateExercise"); // TODO: to be replaced with OpenDSA-LTI updateExercise end point
+        // var url = Khan.odsaFullUrl("updateExercise"); // TODO: to be replaced with OpenDSA-LTI updateExercise end point
         Khan.studentData.current_exercise = currentProblemType;
-        // Khan.request(url, Khan.studentData)
+        var url = "/odsa_exercise_progresses",
+          data = {
+            inst_book_id: Khan.instBookId,
+            inst_section_id: Khan.instSectionId,
+            exercise_name: Khan.exerciseName,
+            current_exercise: currentProblemType
+          };
+
+        Khan.request(url, data);
       }
     }
 
