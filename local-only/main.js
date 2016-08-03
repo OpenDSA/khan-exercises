@@ -1,4 +1,5 @@
 requirejs.config({
+  waitSeconds: 200,
   paths: {
     "jquery": "../../khan-exercises/local-only/jquery",
   },
