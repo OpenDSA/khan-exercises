@@ -1107,13 +1107,19 @@ define(function(require) {
       if (currentProblemType !== "undefined" && Khan.currentExercisePromise) {
         // var url = Khan.odsaFullUrl("updateExercise"); // TODO: to be replaced with OpenDSA-LTI updateExercise end point
         Khan.studentData.current_exercise = currentProblemType;
-        var url = "/odsa_exercise_progresses",
-          data = {
-            inst_book_id: Khan.instBookId,
-            inst_section_id: Khan.instSectionId,
-            exercise_name: Khan.exerciseName,
-            current_exercise: currentProblemType
-          };
+        data = {
+          exercise_name: Khan.exerciseName,
+          current_exercise: currentProblemType
+        };
+        
+        if (Khan.instBookId) {
+          data.inst_book_id = Khan.instBookId;
+          data.inst_section_id = Khan.instSectionId;
+        }
+        else {
+          data.inst_course_offering_exercise_id = Khan.instCourseOfferingExerciseId;
+        }
+        var url = "/odsa_exercise_progresses";
 
         Khan.request(url, data);
       }
