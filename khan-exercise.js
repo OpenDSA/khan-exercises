@@ -1111,10 +1111,14 @@ define(function(require) {
           exercise_name: Khan.exerciseName,
           current_exercise: currentProblemType
         };
-        
         if (Khan.instBookId) {
           data.inst_book_id = Khan.instBookId;
-          data.inst_section_id = Khan.instSectionId;
+          if (Khan.instBookSectionExerciseId) {
+            data.inst_book_section_exercise_id = Khan.instBookSectionExerciseId;
+          }
+          else {
+            data.inst_section_id = Khan.instSectionId;
+          }
         }
         else {
           data.inst_course_offering_exercise_id = Khan.instCourseOfferingExerciseId;
