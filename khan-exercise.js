@@ -1331,14 +1331,15 @@ define(function(require) {
         firstInput = $(".calculator input");
       }
 
-      setTimeout(function() {
+      // disabled because it causes the page to scroll to the exercise on load
+      /*setTimeout(function() {
         if (!firstInput.is(":disabled")) {
           firstInput.focus();
           if (firstInput.is("input:text")) {
             firstInput.select();
           }
         }
-      }, 1);
+      }, 1);*/
 
       lastFocusedSolutionInput = firstInput;
       solutionarea.find(":input").focus(function() {
