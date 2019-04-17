@@ -1151,6 +1151,9 @@ define(function(require) {
 
     $("#workarea").append(problem);
 
+    // inform listeners that the problem being displayed has changed
+    $(Khan).trigger("problemChanged", { id: problem[0].id});
+
     // If there's an original problem, add inherited elements
     var parentType = problem.data("type");
 
