@@ -1120,6 +1120,9 @@ define(function(require) {
             data.inst_section_id = Khan.instSectionId;
           }
         }
+        else if (Khan.instModuleSectionExerciseId) {
+          data.inst_module_section_exercise_id = Khan.instModuleSectionExerciseId;
+        }
         else {
           data.inst_course_offering_exercise_id = Khan.instCourseOfferingExerciseId;
         }
