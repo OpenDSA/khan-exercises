@@ -9,8 +9,8 @@ requirejs.config({
     main: "lib/codemirror"
   }, {
     name: "jsav",
-    location: "../../JSAV",
-    main: "build/JSAV-min"
+    location: "../../lib",
+    main: "JSAV-min"
   }, {
     name: "blockUI",
     location: "../../lib",
