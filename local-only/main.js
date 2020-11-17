@@ -15,10 +15,6 @@ requirejs.config({
     name: "blockUI",
     location: "../../lib",
     main: "jquery.blockUI"
-  }, {
-    name: "timeme",
-    location: "../../lib",
-    main: "timeme"
   }]
 });
 
@@ -46,10 +42,8 @@ requirejs([
       "../../khan-exercises/interface.js"
     ], function () {
       requirejs(["../../khan-exercises/khan-exercise.js"], function () {
-        requirejs(["../../lib/timeme-min.js"], function () {
-          requirejs(["../../lib/odsaKA-min.js"], function () {
-            Khan.odsaLoadExercises();
-          });
+        requirejs(["../../lib/odsaKA-min.js"], function () {
+          Khan.odsaLoadExercises();
         });
       });
     });
