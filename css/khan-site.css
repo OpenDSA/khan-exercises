@@ -3063,7 +3063,7 @@ ul.ui-autocomplete .ui-menu-item .autocomplete-empty {
 
 .info-box .info-box-header,
 .info-box .info-box-subheader {
-	color: #777;
+	color: #6c6c6c;
 	display: block;
 	font-size: 18px;
 	line-height: 100%;
@@ -5163,7 +5163,7 @@ body {
 	font-family: 'Proxima Nova', sans-serif;
 	font-size: 13px;
 	margin: 0;
-	color: #444;
+	color: #585858;
 	line-height: 22px;  /* extend background to cover #page-container on horizontal scroll */
 	min-width: 1000px;
 }
@@ -14694,7 +14694,7 @@ stacks and cards: i.e. the stack of mini cards, the big exercise card, etc.
 	-moz-transition: opacity 0.1s ease-in-out;
 	-o-transition: opacity 0.1s ease-in-out;
 	transition: opacity 0.1s ease-in-out;
-	opacity: 0.7;
+	/*opacity: 0.7;*/
 	filter: alpha(opacity=30);
 	-webkit-backface-visibility: hidden;
 	position: absolute;

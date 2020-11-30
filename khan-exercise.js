@@ -1444,7 +1444,8 @@ define(function(require) {
 
     // Add autocomplete="off" attribute so IE doesn't try to display previous answers
     $("#problem-and-answer").find("input[type='text'], input[type='number']")
-      .attr("autocomplete", "off");
+      .attr("autocomplete", "off")
+      .attr("aria-label", "input");
 
     // If the textbox is empty disable "Check Answer" button
     // Note: We don't do this for multiple choice, number line, etc.
